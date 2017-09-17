@@ -32,6 +32,29 @@
 \usepackage{amsfonts,amsmath,amssymb,amsthm,booktabs,color,enumitem,graphicx}
 \usepackage[pdftex,hidelinks]{hyperref}
 \usepackage{apacite}
+\usepackage{mdframed}
+\usepackage{minted}
+\usepackage{caption}
+\usepackage{listings}
+
+\newenvironment{code}[3]
+{%
+  \VerbatimEnvironment
+  \renewcommand{\lstlistingname}{Koodi}%
+  \begin{listing}[H]%
+  \caption{#3}%
+  \label{#2}%
+  \begin{mdframed}%
+  \begin{minted}{#1}%
+}
+{%
+  \end{minted}%
+  \end{mdframed}%
+  \vspace{-10pt}%
+  \end{listing}%
+}
+
+
 
 % Automatically set the PDF metadata fields
 \makeatletter
@@ -72,8 +95,8 @@
 % The following commands define the information used to generate title and
 % abstract pages. The following entries should be always specified:
 
-\title{Esimerkkiotsikko}
-\author{Eija Esimerkki}
+\title{Rust peliohjelmoinnissa}
+\author{Victor Bankowski, Antti Karjalainen ja Janne Pulkkinen}
 \date{\today}
 \level{Seminaariraportti}
 \abstract{Tiivistelmä.}
@@ -123,13 +146,40 @@
 
 \mainmatter       % clear page, start arabic page numbering
 
-\section{Esimerkkiluku}
+\section{Johdanto}
 
 % Write some science here.
+Rust on käännettävä ohjelmointikieli, jonka kehitystä tukee Mozilla-säätiö \cite{servo}. Mozilla käyttää kieltä uuden rinnakkaisuutta hyödyntävän Servo -internet-selainmoottorin ohjelmointiin [ja lisäksi käytetään missä?]. Käännettävänä ohjelmointikielenä C ja C++ -kielten tavoin Rust mahdollistaa suorituskykyä ja hallittua muistin käyttöä vaativien sovellusten kehittämisen esimerkiksi sulautetuissa järjestelmissä. Edellä mainituista kielistä poiketen Rust kuitenkin estää yleisiä C-kielissä esiintyviä muistinhallintaa ja kilpatilanteita koskevia ongelmia, mahdollistaen kuitenkin vastaavan suorituskyvyn ajettavassa ohjelmassa. Rust ratkaisee nämä ongelmat käyttämällä muistinhallinnassa omistajuuden (“ownership”) ja lainaamisen (“borrowing”) käsitteitä. Tämä estää mahdolliset virhetilanteet jo ohjelman käännösvaiheessa vaatimatta virtuaalikoneen, kääntäjän tai tulkin käyttöä ohjelman suorituksen aikana.
 
-Esimerkkilause ja lähdeviite~\cite{esimerkki}.
+\section{Historia}
+
+\section{Perusteet}
+\begin{code}{rust}{helloworld}{Tulostaa "Hei maailma"}
+fn main() {
+    println!("Hei maailma");
+}
+\end{code}
+
+Ohjelmointikieleen tutustuessa on tapana kirjoittaa klassinen "Hei maailma" -ohjelma joka tulostaa kyseisen lauseen. Koodi \ref{helloworld} on kyseisen ohjelman Rust toteutus.
+
+\begin{code}{rust}{syntax}{}
+fn main() {
+    let x = 42;
+    let mut y = 7;
+    y += 1;
+    if y == 8 {
+        for i in 0..x {
+            println!("y on 8 ja {} on pienempi kuin x", i);        
+        }    
+    }
+}
+\end{code}
 
 
+\subsection{Omistajuus}
+
+
+\section{Seuraava juttu}
 % --- References ---
 %
 % bibtex is used to generate the bibliography. The babplain style
