@@ -153,6 +153,8 @@ Rust on käännettävä ohjelmointikieli, jonka kehitystä tukee Mozilla-sääti
 
 \section{Historia}
 
+Rust-kielen kehitys alkoi vuonna 2006 Graydon Hoaren sivuprojektina, jollaisena se jatkui yli kolmen vuoden ajan. Mozilla-säätiö osallistui kehitykseen ensimmäisen kerran vuonna 2009 ja on tukenut ohjelmointikielen kehitystä siitä lähtien. Nykyisin kieltä kehittävä ryhmä -- \textit{The Rust Team} -- jakautuu osaryhmiin, jotka vastaavat kielen eri osa-alueista. Osa-alueisiin kuuluvat esimerkiksi kääntäjän kehittäminen, kielen ominaisuuksien suunnittelu ja dokumentaatio.
+
 \section{Perusteet}
 \begin{code}{rust}{helloworld}{Tulostaa "Hei maailma"}
 fn main() {
@@ -160,21 +162,42 @@ fn main() {
 }
 \end{code}
 
-Ohjelmointikieleen tutustuessa on tapana kirjoittaa klassinen "Hei maailma" -ohjelma joka tulostaa kyseisen lauseen. Koodi \ref{helloworld} on kyseisen ohjelman Rust toteutus.
+Ohjelmointikieleen tutustuessa on tapana kirjoittaa klassinen "Hei maailma" -ohjelma joka tulostaa kyseisen lauseen. Koodi \ref{helloworld} on kyseisen ohjelman Rust toteutus. Kyseinen toteutus ei poikkea juurikaan muiden proseduraalisten kielien toteutuksista. Suurin ero muiden kielien toteutuksiin on se että tulostuskomento on makro. Tulostuskomento on toteutettu makrolla tekstin muotoilun helpottamiseksi. Koodissa \ref{helloworld2} on esimerkki tästä.
 
-\begin{code}{rust}{syntax}{}
+\begin{code}{rust}{helloworld2}{Tulostaa "Hei maailma"}
 fn main() {
-    let x = 42;
-    let mut y = 7;
-    y += 1;
-    if y == 8 {
-        for i in 0..x {
-            println!("y on 8 ja {} on pienempi kuin x", i);        
-        }    
-    }
+    let s_luku: i32 = 4; // Valittu reilulla nopanheitolla.
+    println!("Satunnaislukusi on {}", s_luku);
 }
 \end{code}
 
+Rustissa muuttujat määritellään käyttäen \textbf{let} avainsanaa ja muuttujan tyyppi erotellaan kaksoipistellä. Koodissa \ref{helloworld2} muuttuja nimeltä $s\_luku$ on 32-bittinen etumerkillinen kokonaisluku. Muuttujat oletusarvoisesti eivät ole muokattavissa. Muokattavat muuttujat määritellään käyttäen avainsanayhdistelmää \textbf{let mut}. 
+
+\begin{code}{rust}{factorialiter}{Funktio joka laskee $n!$ iteratiivisesti.}
+fn factorial(n: u64) -> u64 {
+    let mut result = 1;
+    for i in 1..(n + 1) {
+        result *= i;
+    }
+    return result;
+}
+\end{code}
+
+Useimmissa tapauksissa muuttujan tyypin voi jättää merkkaamatta, koska Rust osaa päätellä sen käännösaikana. Kuitenkin funktioiden parametrien ja palautusarvon tyypit täytyy merkata, koska Rustissa ei ole ohjelmanlaajuista tyyppipäättelyä. Funktion palautusarvon tyyppi määritellään nuolen \textbf{->} jälkeen. Koodissa \ref{factorialiter} funktion parametri n ja palautusarvo ovat 64-bittisiä etumerkittömiä kokonaislukuja.
+
+Rustin \textbf{for}-silmukat ovat \textit{for--each}-tyyppisiä, jossa käydään iteraattorin kaikki alkiot läpi. Esimerkiksi koodissa \ref{factorial} käydään kaikki välin $[1, n+1)$ kokonaislukuarvot läpi.
+
+Rustissa ei tarvitse käyttää \textbf{return} avainsanaa, jos arvo palautetaan funktion lopussa. Tällöin ei myöskään merkata puolipistettä.
+
+\begin{code}{rust}{factorialrec}{Funktio joka laskee $n!$ rekursiivisesti.}
+fn factorial(n: u64) -> u64 {
+    if n == 0 {
+        1
+    } else {
+        n * factorial(n-1)
+    }
+}
+\end{code}
 
 \subsection{Omistajuus}
 
