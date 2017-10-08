@@ -37,21 +37,30 @@
 \usepackage{caption}
 \usepackage{listings}
 
-\newenvironment{code}[3]
+\newenvironment{caplab}[2]
+{%
+  \renewcommand\listingscaption{Koodi}%
+  \vspace{-5pt}%
+  \begin{listing}[H]%
+  \caption{#2}%
+  \label{#1}%
+}
+{%
+  \vspace{7pt}%
+  \end{listing}%
+  \vspace{-5pt}%
+}
+
+\newenvironment{code}[1]
 {%
   \VerbatimEnvironment
-  \renewcommand{\lstlistingname}{Koodi}%
-  \begin{listing}[H]%
-  \caption{#3}%
-  \label{#2}%
   \begin{mdframed}%
   \begin{minted}{#1}%
 }
 {%
   \end{minted}%
   \end{mdframed}%
-  \vspace{-10pt}%
-  \end{listing}%
+  \vspace{-15pt}%
 }
 
 
@@ -153,27 +162,41 @@ Rust on käännettävä ohjelmointikieli, jonka kehitystä tukee Mozilla-sääti
 
 \section{Historia}
 
-Rust-kielen kehitys alkoi vuonna 2006 Graydon Hoaren sivuprojektina, jollaisena se jatkui yli kolmen vuoden ajan. Mozilla-säätiö osallistui kehitykseen ensimmäisen kerran vuonna 2009 ja on tukenut ohjelmointikielen kehitystä siitä lähtien. Nykyisin kieltä kehittävä ryhmä -- \textit{The Rust Team} -- jakautuu osaryhmiin, jotka vastaavat kielen eri osa-alueista. Osa-alueisiin kuuluvat esimerkiksi kääntäjän kehittäminen, kielen ominaisuuksien suunnittelu ja dokumentaatio.
+Rust-kielen kehitys alkoi vuonna 2006 Graydon Hoaren sivuprojektina, jollaisena se jatkui yli kolmen vuoden ajan\footnote{https://www.rust-lang.org/en-US/faq.html}. Mozilla-säätiö osallistui kehitykseen ensimmäisen kerran vuonna 2009 ja on tukenut ohjelmointikielen kehitystä siitä lähtien. Nykyisin kieltä kehittävä ryhmä -- \textit{The Rust Team} -- jakautuu osaryhmiin, jotka vastaavat kielen eri osa-alueista. Osa-alueisiin kuuluvat esimerkiksi kääntäjän kehittäminen, kielen ominaisuuksien suunnittelu ja dokumentaatio.
+
+Suurimpiin Rustia käyttäviin projekteihin kuuluu Mozillan kehittämä Servo -web-selainmoottori. Sen tavoitteisiin kuuluu sivun piirtämisen, HTML-datan parsimisen ja muiden web-selaimen piiriin kuuluvien tehtävien rinnakkaistaminen\footnote{https://hacks.mozilla.org/2017/08/inside-a-super-fast-css-engine-quantum-css-aka-stylo/}. Servo-projektiin kuuluva CSS-moottori Stylo on otettu käyttöön Mozilla Firefox -selaimen uusissa kehitysversioissa\footnote{https://blog.mozilla.org/blog/2017/09/26/firefox-quantum-beta-developer-edition/}.
+
+Muihin Rust-kieltä hyödyntäviin organisaatioihin kuuluu muun muassa Dropbox ja Canonical\footnote{https://www.rust-lang.org/en-US/friends.html}.
 
 \section{Perusteet}
-\begin{code}{rust}{helloworld}{Tulostaa "Hei maailma"}
+\begin{caplab}{helloworld}{Tulostaa "Hei maailma"}
+\begin{code}{rust}
 fn main() {
     println!("Hei maailma");
 }
 \end{code}
+\begin{code}{bash}
+$ cargo run
+Hei maailma
+\end{code}
+%$
+\end{caplab}
+
 
 Ohjelmointikieleen tutustuessa on tapana kirjoittaa klassinen "Hei maailma" -ohjelma joka tulostaa kyseisen lauseen. Koodi \ref{helloworld} on kyseisen ohjelman Rust toteutus. Kyseinen toteutus ei poikkea juurikaan muiden proseduraalisten kielien toteutuksista. Suurin ero muiden kielien toteutuksiin on se että tulostuskomento on makro. Tulostuskomento on toteutettu makrolla tekstin muotoilun helpottamiseksi. Koodissa \ref{helloworld2} on esimerkki tästä.
-
-\begin{code}{rust}{helloworld2}{Tulostaa "Hei maailma"}
+\begin{caplab}{helloworld2}{Tulostaa "Hei maailma"}
+\begin{code}{rust}
 fn main() {
     let s_luku: i32 = 4; // Valittu reilulla nopanheitolla.
     println!("Satunnaislukusi on {}", s_luku);
 }
 \end{code}
+\end{caplab}
 
 Rustissa muuttujat määritellään käyttäen \textbf{let} avainsanaa ja muuttujan tyyppi erotellaan kaksoipistellä. Koodissa \ref{helloworld2} muuttuja nimeltä $s\_luku$ on 32-bittinen etumerkillinen kokonaisluku. Muuttujat oletusarvoisesti eivät ole muokattavissa. Muokattavat muuttujat määritellään käyttäen avainsanayhdistelmää \textbf{let mut}. 
 
-\begin{code}{rust}{factorialiter}{Funktio joka laskee $n!$ iteratiivisesti.}
+\begin{caplab}{factorialiter}{Funktio joka laskee $n!$ iteratiivisesti.}
+\begin{code}{rust}
 fn factorial(n: u64) -> u64 {
     let mut result = 1;
     for i in 1..(n + 1) {
@@ -182,14 +205,16 @@ fn factorial(n: u64) -> u64 {
     return result;
 }
 \end{code}
+\end{caplab}
 
 Useimmissa tapauksissa muuttujan tyypin voi jättää merkkaamatta, koska Rust osaa päätellä sen käännösaikana. Kuitenkin funktioiden parametrien ja palautusarvon tyypit täytyy merkata, koska Rustissa ei ole ohjelmanlaajuista tyyppipäättelyä. Funktion palautusarvon tyyppi määritellään nuolen \textbf{->} jälkeen. Koodissa \ref{factorialiter} funktion parametri n ja palautusarvo ovat 64-bittisiä etumerkittömiä kokonaislukuja.
 
-Rustin \textbf{for}-silmukat ovat \textit{for--each}-tyyppisiä, jossa käydään iteraattorin kaikki alkiot läpi. Esimerkiksi koodissa \ref{factorial} käydään kaikki välin $[1, n+1)$ kokonaislukuarvot läpi.
+Rustin \textbf{for}-silmukat ovat \textit{for--each}-tyyppisiä, jossa käydään iteraattorin kaikki alkiot läpi. Esimerkiksi koodissa \ref{factorialiter} käydään kaikki välin $[1, n+1)$ kokonaislukuarvot läpi.
 
 Rustissa ei tarvitse käyttää \textbf{return} avainsanaa, jos arvo palautetaan funktion lopussa. Tällöin ei myöskään merkata puolipistettä.
 
-\begin{code}{rust}{factorialrec}{Funktio joka laskee $n!$ rekursiivisesti.}
+\begin{caplab}{factorialrec}{Funktio joka laskee $n!$ rekursiivisesti.}
+\begin{code}{rust}
 fn factorial(n: u64) -> u64 {
     if n == 0 {
         1
@@ -198,6 +223,7 @@ fn factorial(n: u64) -> u64 {
     }
 }
 \end{code}
+\end{caplab}
 
 \subsection{Omistajuus}
 
