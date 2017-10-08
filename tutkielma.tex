@@ -228,6 +228,13 @@ fn factorial(n: u64) -> u64 {
 \subsection{Omistajuus}
 
 
+%TODO muuttuja -> muisti. esitellään muistinhallinta ensiksi. viittauksien laskenta ja tracing GC ovat eri asioita. Eroa ei kannata varmaan edes mainita. Tulkkia käyttävät kielet eivät ole ainoita joissa GC, varmaan ei tarvitse mainita erikseen? 
+Ohjelmointikielet vaativat muuttujien luomisen lisäksi niiden poistamisen. Käännetyissä kielissä tämä voi vaatia ohjelmoijalta muuttujien manuaalisen poistamista, kun niitä ei enää käytetä. Esimerkiksi C käyttää manuaalista muistinhallintaa. Useissa tulkkia käyttävissä kielissä muuttujaan kohdistuvia viittauksia lasketaan suorituksen aikana; kun muuttujaan ei enää viitata, automaattinen roskienkeräys ennen pitkää löytää käyttämättömän muuttujan ja poistaa sen. Tämä ei vaadi ohjelmoijalta yleensä lisätöitä, mutta roskankerääjä lisää ohjelman resurssivaatimuksia. Roskienkeräystä käyttäviin kieliin kuuluvat muun muassa Python ja Java.
+
+Rust varmistaa muuttujien muistinhallinnan käyttämällä omistamisen käsitettä, joka ei vaadi suorituksen aikaisen roskankeruun käyttöä, eikä myöskään muuttujien manuaalista poistamista. Kun muuttuja luodaan missä tahansa osassa koodia, sille määritellään omistaja muuttujan vaikutusalueen perusteella. Esimerkiksi metodissa main luodut muuttujat saavat omistajakseen kyseisen metodin. Kun kyseisen main-metodin suoritus on päättynyt, kyseisen metodin omistamat muuttujat poistetaan välittömästi ja niiden varaama muistialue palautetaan järjestelmän käyttöön. Tätä periaatetta on havainnollistettu esimerkissä 2. %Esimerkki 2. Käytetään varmaan String, jossa omistajuus tulee esiin (numerot ovat Copy).
+
+\subsection{Lainaminen ja elinajat}
+
 \section{Seuraava juttu}
 % --- References ---
 %
