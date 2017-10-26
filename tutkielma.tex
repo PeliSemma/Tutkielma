@@ -183,7 +183,7 @@ Hei maailma
 \end{caplab}
 
 
-Ohjelmointikieleen tutustuessa on tapana kirjoittaa klassinen "Hei maailma" -ohjelma joka tulostaa kyseisen lauseen. Koodi \ref{helloworld} on kyseisen ohjelman Rust toteutus. Kyseinen toteutus ei poikkea juurikaan muiden proseduraalisten kielien toteutuksista. Suurin ero muiden kielien toteutuksiin on se että tulostuskomento on makro. Tulostuskomento on toteutettu makrolla tekstin muotoilun helpottamiseksi. Koodissa \ref{helloworld2} on esimerkki tästä.
+Ohjelmointikieleen tutustuessa on tapana kirjoittaa klassinen ``Hei maailma`` -ohjelma joka tulostaa kyseisen lauseen. Koodi \ref{helloworld} on kyseisen ohjelman Rust toteutus. Kyseinen toteutus ei poikkea juurikaan muiden proseduraalisten kielien toteutuksista. Suurin ero muiden kielien toteutuksiin on se että tulostuskomento on makro. Tulostuskomento on toteutettu makrolla tekstin muotoilun helpottamiseksi. Koodissa \ref{helloworld2} on esimerkki tästä.
 \begin{caplab}{helloworld2}{Tulostaa "Hei maailma"}
 \begin{code}{rust}
 fn main() {
@@ -234,6 +234,14 @@ Ohjelmointikielet vaativat muuttujien luomisen lisäksi niiden poistamisen. Kä�
 Rust varmistaa muuttujien muistinhallinnan käyttämällä omistamisen käsitettä, joka ei vaadi suorituksen aikaisen roskankeruun käyttöä, eikä myöskään muuttujien manuaalista poistamista. Kun muuttuja luodaan missä tahansa osassa koodia, sille määritellään omistaja muuttujan vaikutusalueen perusteella. Esimerkiksi metodissa main luodut muuttujat saavat omistajakseen kyseisen metodin. Kun kyseisen main-metodin suoritus on päättynyt, kyseisen metodin omistamat muuttujat poistetaan välittömästi ja niiden varaama muistialue palautetaan järjestelmän käyttöön. Tätä periaatetta on havainnollistettu esimerkissä 2. %Esimerkki 2. Käytetään varmaan String, jossa omistajuus tulee esiin (numerot ovat Copy).
 
 \subsection{Lainaminen ja elinajat}
+
+\section{Vertailu C-kieliin}
+
+C++ ja C-ohjelmointikielet ovat Rustin tavoin käännettäviä ohjelmointikieliä, jotka soveltuvat suorituskykyä vaativien sovellusten kehittämiseen. Näihin kuuluvat muun muassa käyttöjärjestelmät, sulautetut järjestelmät ja pelimoottorit, joista esimerkiksi \textit{Unity} ja \textit{Unreal Engine} on kirjoitettu C++ -kieltä käyttäen. Rustille on saatavilla pelimoottorikirjastoja kuten \textit{Piston}, mutta luontityökaluja sisältävää pelinkehityskokonaisuutta ei toistaiseksi ole saatavilla Rust-kielelle.\cite{AreWeGameYet}
+
+Rust-lähdekoodin kääntämiseen käytetään rustc -työkalua, joka myös on kirjoitettu Rust-kielellä. Kääntäjä hyödyntää LLVM-kääntäjäinfrastruktuurin työkaluja, ja hyötyy siten kyseistä projektia koskevista suorituskykyparannuksista.\cite{HowFastIsRust} C++ -kielestä poiketen Rustille ei ole kuitenkaan saatavilla vaihtoehtoisia kääntäjiä. Laajassa käytössä oleviin C++ -kielen kääntäjiin kuuluu muun muassa LLVM-projektin \textit{Clang}, \textit{GNU GCC} ja \textit{Intel C++ Compiler}.
+
+C++ -kieli ja sitä edeltävä C-kieli ovat yleisiä käyttöjärjestelmien ohjelmointikielinä: \textit{Microsoft Windows} on ohjelmoitu C++ -kielellä, \textit{FreeBSD} on ohjelmoitu käyttäen sekä C++ ja C-kieliä ja \textit{Linux} käyttää C-kieltä. Rust olisi muistinhallinnan puolesta otollinen käyttöjärjestelmän ytimen ohjelmointiin, jossa muistinhallinta-virheillä voi olla vakavia seurauksia järjestelmän vakauden ja tietoturvallisuuden kannalta. \textit{Redox} on Rust-kielellä kirjoitettu mikroydin-rakennetta hyödyntävä käyttöjärjestelmä.\cite{WhatRedoxIs} \textit{Redox} on vielä aikaisessa kehitysvaiheessa eikä siten sovellu jokapäiväiseen käyttöön.
 
 \section{Seuraava juttu}
 % --- References ---
