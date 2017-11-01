@@ -245,6 +245,8 @@ Rust-lähdekoodin kääntämiseen käytetään rustc -työkalua, joka myös on k
 
 C++ -kieli ja sitä edeltävä C-kieli ovat yleisiä käyttöjärjestelmien ohjelmointikielinä: \textit{Microsoft Windows} on ohjelmoitu C++ -kielellä, \textit{FreeBSD} on ohjelmoitu käyttäen sekä C++ ja C-kieliä ja \textit{Linux} käyttää C-kieltä. Rust olisi muistinhallinnan puolesta otollinen käyttöjärjestelmän ytimen ohjelmointiin, jossa muistinhallinta-virheillä voi olla vakavia seurauksia järjestelmän vakauden ja tietoturvallisuuden kannalta. \textit{Redox} on Rust-kielellä kirjoitettu mikroydin-rakennetta hyödyntävä käyttöjärjestelmä.\cite{WhatRedoxIs} \textit{Redox} on vielä aikaisessa kehitysvaiheessa eikä siten sovellu jokapäiväiseen käyttöön.
 
+Koska Rust-kieleen ei kuulu ajonaikaista virtuaalikonetta tai muuta tulkkia, Rust-koodia on C-kielten tavoin mahdollista hyödyntää korkeamman tason kielissä kuten Pythonissa tai Rubyssa. Tässä tapauksessa sovelluksen tehokasta suorituskykyä ja muistinkäyttöä vaativat osat voidaan kirjoittaa Rustilla.\cite{RustInsideOtherLanguages} C-kielellä kirjoitettuja kirjastoja on myös mahdollista käyttää Rustilla toteuttamalla kirjastolle sidonnat, jotka käyttävät kirjaston funktioita FFI (\textit{Foreign Function Interface}) -rajapinnan kautta. C-kielellä kirjastoja ei siis tarvitse uudelleenkirjoittaa, jotta niitä voidaan hyödyntää Rust-kielessä. Tässä tapauksessa ohjelmoijan tulee luoda kirjastolle turvalliset sidonnat, jotka estävät mahdolliset virhetilanteet esimerkiksi muistinhallinnan osalta.
+
 \section{Seuraava juttu}
 % --- References ---
 %
