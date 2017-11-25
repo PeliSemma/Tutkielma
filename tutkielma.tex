@@ -282,6 +282,8 @@ C++ -kieli ja sitä edeltävä C-kieli ovat yleisiä käyttöjärjestelmien ohje
 
 Koska Rust-kieleen ei kuulu ajonaikaista virtuaalikonetta tai muuta tulkkia, Rust-koodia on C-kielten tavoin mahdollista hyödyntää korkeamman tason kielissä kuten Pythonissa tai Rubyssa. Tässä tapauksessa sovelluksen tehokasta suorituskykyä ja muistinkäyttöä vaativat osat voidaan kirjoittaa Rustilla.\cite{RustInsideOtherLanguages} C-kielellä kirjoitettuja kirjastoja on myös mahdollista käyttää Rustilla toteuttamalla kirjastolle sidonnat, jotka käyttävät kirjaston funktioita FFI (\textit{Foreign Function Interface}) -rajapinnan kautta. C-kielellä kirjastoja ei siis tarvitse uudelleenkirjoittaa, jotta niitä voidaan hyödyntää Rust-kielessä. Tässä tapauksessa ohjelmoijan tulee luoda kirjastolle turvalliset sidonnat, jotka estävät mahdolliset virhetilanteet esimerkiksi muistinhallinnan osalta.
 
+Rust-kieli tukee virallisesti 32-bittisiä ja 64-bittisiä \textit{Microsoft Windows}, \textit{Linux} ja \textit{OS X} -käyttöjärjestelmiä.\cite{RustPlatformSupport} Muille alustoille, kuten ARM-arkkitehtuurille ja \textit{iOS} ja \textit{Android} -mobiilikäyttöjärjestelmille on rajatumpi tuki: alustoille on saatavilla valmiiksi käännetyt kirjastot ja sovellukset, mutta automatisoituja testejä ei ajeta julkaisun yhteydessä eikä niitä voi pitää siten yhtä toimintavarmoina. \textit{iOS} ja \textit{Android} -käyttöjärjestelmille on olemassa virallisesti tuetut C ja C++ -kieliä käyttävät kehitystyökalut. Esimerkiksi \textit{Android NDK} sallii sovellusten kehittämisen C ja C++ -kieliä käyttäen, tarjoten myös kirjastoja esimerkiksi 3D-piirtämistä, äänentoistoa ja säikeiden hallintaa varten.\cite{AndroidNDK}
+
 \section{Peliohjelmointi Rustilla}
 
 % Rust vaikuttaa pelien rakenteeseen
@@ -292,6 +294,8 @@ Koska Rustin omistajuuden ja lainaamisen mekanismit ohjaavat välttämään sama
 % muita pelejä
 
 % 
+
+
 
 % --- References ---
 %
