@@ -184,7 +184,7 @@ Hei maailma
 
 
 Ohjelmointikieleen tutustuessa on tapana kirjoittaa klassinen ``Hei maailma`` -ohjelma joka tulostaa kyseisen lauseen. Koodi \ref{helloworld} on kyseisen ohjelman Rust toteutus. Kyseinen toteutus ei poikkea juurikaan muiden proseduraalisten kielien toteutuksista. Suurin ero muiden kielien toteutuksiin on se että tulostuskomento on makro. Tulostuskomento on toteutettu makrolla tekstin muotoilun helpottamiseksi. Koodissa \ref{helloworld2} on esimerkki tästä.
-\begin{caplab}{helloworld2}{Tulostaa "Hei maailma"}
+\begin{caplab}{helloworld2}{Tulostaa satunnaisluvun}
 \begin{code}{rust}
 fn main() {
     let s_luku: i32 = 4; // Valittu reilulla nopanheitolla.
@@ -231,7 +231,38 @@ fn factorial(n: u64) -> u64 {
 %TODO muuttuja -> muisti. esitellään muistinhallinta ensiksi. viittauksien laskenta ja tracing GC ovat eri asioita. Eroa ei kannata varmaan edes mainita. Tulkkia käyttävät kielet eivät ole ainoita joissa GC, varmaan ei tarvitse mainita erikseen?
 Muistinhallinta on tärkeä osa ohjelmien toimintaa. Tätä varten monissa kielissä käytetään automaattista roskienkeruuta. Tämä vähentää ohjelmoijan vastuuta, mutta samalla myös vähentää mahdollisuuksia vaikuttaa muistinhallintaan. Tietyissä suorituskykykriittisissä ongelmissa automaattinen roskienkeruu saattaa tehdä epäoptimaalisia ratkaisuja. Tällaisia ongelmia esiintyy pelimoottoreissa esimerkiksi fysiikanmallinmuksessa. Tämän takia pelimoottorit toteutetaan usein kielillä joissa ei muistinhallinta on manuaalista. Manuaalisesti muistinhallitsevissa kielissä jää ohjelmoijan vastuuksi varata ja vapauttaa muisti oikeaoppisesti, josta johtuen ne ovat alttiita muistihallintavirheille. 
 
-Rust-ohjelmointikielessä ei käytetä automaattista roskienkeruuta, mutta siinä ei myöskään jätetä muistinhallintaa täysin ohjelmoijan vastuulle. Tämä on mahdollista, koska kieli takaa sen että jokaisella varatulla muistialueella on yksikäsittäinen omistaja, joka on vastuussa sen vapauttamisesta. Koska omistajuus on Rustissa käännösaikainen käsite, vastaa se manuaalista muistinhallintaa. Ohjelmointikielen tasolla muuttuja omistaa arvonsa
+Rust-ohjelmointikielessä ei käytetä automaattista roskienkeruuta, mutta siinä ei myöskään jätetä muistinhallintaa täysin ohjelmoijan vastuulle. Tämä on mahdollista, koska kieli takaa sen että jokaisella varatulla muistialueella on yksikäsittäinen omistaja, joka on vastuussa sen vapauttamisesta. Koska omistajuus on käännösaikainen käsite Rustissa, vastaa se manuaalista muistinhallintaa. Ohjelmointikielen tasolla muuttuja omistaa arvonsa. Kun muuttuja poistuu näkyvyysalueelta, niin sen omistama arvo vapautetaan. Muuttuja voi siirtää omistamansa arvon jollekkin muuttujalle tai funktiolle parametriksi, jolloin myös omistajuus siirtyy. Tämän jälkeen alkuperäinen muuttuja ei voi enää käyttää arvoa sillä se ei omista sitä.
+
+Koodissa \ref{ownerexample} havainnollistetaan mitä tapahtuu kun muuttujaa yritetään käyttää sen arvon siirron jälkeen. Virheviestistä nähdään selvästi missä arvon siirto ja missä virheellinen muuttujan uudelleenkäyttö tapahtuvat. Lisäksi viestissä huomautetaan $Copy$-trait toteutuksen puuttumisesta $String$-tyypille. Rustissa siirrot ovat aina muistisiirtoja pinossa. $Copy$-traitin toteuttavat tyypit takaavat, että kaikki niihin liittyvä data sijaitsee pinossa. Tämän takia niiden siirrossa tehdään ns. syväkopiointi. \textit{Syväkopiointi}(Deep copy) tarkoittaa kaiken muuttujaan liittyvän datan kopioimista. Syväkopioinnin vastakohta on \textit{pinnallinen kopiointi}. . (Shallow copy) Koska siirto on syväkopio $Copy$-traitin toteuttaville tyypeille, ei tämän tyyppisillä muuttujilla ole siirtos.
+
+\begin{caplab}{ownerexample}{Muuttujan käyttö omistajuuden siirron jälkeen.}
+\begin{code}{rust}
+fn main() {
+    let mut string = String::from("Hello, ");
+    add_world(string);
+    add_world(string);
+}
+
+fn add_world(mut string: String) {
+    string.push_str("World!");
+}
+\end{code}
+\begin{code}{bash}
+$ cargo run
+error[E0382]: use of moved value: 'string'
+ --> src/main.rs:4:15
+  |
+3 |     add_world(string);
+  |               ------ value moved here
+4 |     add_world(string);
+  |               ^^^^^^ value used here after move
+  |
+  = note: move occurs because 'string' has type 
+  'std::string::String', which does not implement 
+  the 'Copy' trait
+\end{code}
+%$
+\end{caplab} 
  
 Ohjelmointikielet vaativat muuttujien luomisen lisäksi niiden poistamisen. Käännetyissä kielissä tämä voi vaatia ohjelmoijalta muuttujien manuaalisen poistamista, kun niitä ei enää käytetä. Esimerkiksi C käyttää manuaalista muistinhallintaa. Useissa tulkkia käyttävissä kielissä muuttujaan kohdistuvia viittauksia lasketaan suorituksen aikana; kun muuttujaan ei enää viitata, automaattinen roskienkeräys ennen pitkää löytää käyttämättömän muuttujan ja poistaa sen. Tämä ei vaadi ohjelmoijalta yleensä lisätöitä, mutta roskankerääjä lisää ohjelman resurssivaatimuksia. Roskienkeräystä käyttäviin kieliin kuuluvat muun muassa Python ja Java.
 
@@ -251,7 +282,17 @@ C++ -kieli ja sitä edeltävä C-kieli ovat yleisiä käyttöjärjestelmien ohje
 
 Koska Rust-kieleen ei kuulu ajonaikaista virtuaalikonetta tai muuta tulkkia, Rust-koodia on C-kielten tavoin mahdollista hyödyntää korkeamman tason kielissä kuten Pythonissa tai Rubyssa. Tässä tapauksessa sovelluksen tehokasta suorituskykyä ja muistinkäyttöä vaativat osat voidaan kirjoittaa Rustilla.\cite{RustInsideOtherLanguages} C-kielellä kirjoitettuja kirjastoja on myös mahdollista käyttää Rustilla toteuttamalla kirjastolle sidonnat, jotka käyttävät kirjaston funktioita FFI (\textit{Foreign Function Interface}) -rajapinnan kautta. C-kielellä kirjastoja ei siis tarvitse uudelleenkirjoittaa, jotta niitä voidaan hyödyntää Rust-kielessä. Tässä tapauksessa ohjelmoijan tulee luoda kirjastolle turvalliset sidonnat, jotka estävät mahdolliset virhetilanteet esimerkiksi muistinhallinnan osalta.
 
-\section{Seuraava juttu}
+\section{Peliohjelmointi Rustilla}
+
+% Rust vaikuttaa pelien rakenteeseen
+Koska Rustin omistajuuden ja lainaamisen mekanismit ohjaavat välttämään samanai
+
+% Specs
+
+% muita pelejä
+
+% 
+
 % --- References ---
 %
 % bibtex is used to generate the bibliography. The babplain style
