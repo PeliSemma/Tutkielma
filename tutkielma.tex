@@ -108,7 +108,13 @@
 \author{Victor Bankowski, Antti Karjalainen ja Janne Pulkkinen}
 \date{\today}
 \level{Seminaariraportti}
-\abstract{Tiivistelmä.}
+\abstract{Seminaariraportti tarkastelee Rust-ohjelmointikieltä, sen ominaisuuksia ja eroavaisuuksia muihin laajassa käytössä oleviin ohjelmointikieliin, ja sen soveltuvuutta peliohjelmointiin.
+
+Raportin toinen ja kolmas kappale käsittelevät Rust-ohjelmoinnin historiaa, perusteita ja ohjelmoinnissa tärkeitä piirteitä, kuten omistajuutta, lainaamista ja muuttujien elinikää. Ohjelmointikielen ominaisuuksia esitellään koodiesimerkeillä.
+
+Neljäs kappale keskittyy Rustin vertailuun C ja C++ -ohjelmointikielien kanssa käyttäen vertailukohteina käyttöjärjestelmiä ja kehitystyökaluja.
+
+Viides kappale esittelee Rustille saatavilla olevia peliohjelmointiin soveltuvia kirjastoja ja työkaluja.}
 
 % The following can be used to specify keywords and classification of the paper:
 
@@ -274,15 +280,21 @@ Rust-kielen muistinhallintaan kuuluu omistajuuden lisäksi kaksi merkittävää 
 
 \section{Vertailu C-kieliin}
 
+\subsection{Kehitystyökalut}
+
 C++ ja C-ohjelmointikielet ovat Rustin tavoin käännettäviä ohjelmointikieliä, jotka soveltuvat suorituskykyä vaativien sovellusten kehittämiseen. Näihin kuuluvat muun muassa käyttöjärjestelmät, sulautetut järjestelmät ja pelimoottorit, joista esimerkiksi \textit{Unity} ja \textit{Unreal Engine} on kirjoitettu C++ -kieltä käyttäen. Rustille on saatavilla pelimoottorikirjastoja kuten \textit{Piston}, mutta luontityökaluja sisältävää pelinkehityskokonaisuutta ei toistaiseksi ole saatavilla Rust-kielelle.\cite{AreWeGameYet}
 
 Rust-lähdekoodin kääntämiseen käytetään rustc -työkalua, joka myös on kirjoitettu Rust-kielellä. Kääntäjä hyödyntää LLVM-kääntäjäinfrastruktuurin työkaluja, ja hyötyy siten kyseistä projektia koskevista suorituskykyparannuksista.\cite{HowFastIsRust} C++ -kielestä poiketen Rustille ei ole kuitenkaan saatavilla vaihtoehtoisia kääntäjiä. Laajassa käytössä oleviin C++ -kielen kääntäjiin kuuluu muun muassa LLVM-projektin \textit{Clang}, \textit{GNU GCC} ja \textit{Intel C++ Compiler}.
 
-C++ -kieli ja sitä edeltävä C-kieli ovat yleisiä käyttöjärjestelmien ohjelmointikielinä: \textit{Microsoft Windows} on ohjelmoitu C++ -kielellä, \textit{FreeBSD} on ohjelmoitu käyttäen sekä C++ ja C-kieliä ja \textit{Linux} käyttää C-kieltä. Rust olisi muistinhallinnan puolesta otollinen käyttöjärjestelmän ytimen ohjelmointiin, jossa muistinhallinta-virheillä voi olla vakavia seurauksia järjestelmän vakauden ja tietoturvallisuuden kannalta. \textit{Redox} on Rust-kielellä kirjoitettu mikroydin-rakennetta hyödyntävä käyttöjärjestelmä.\cite{WhatRedoxIs} \textit{Redox} on vielä aikaisessa kehitysvaiheessa eikä siten sovellu jokapäiväiseen käyttöön.
-
 Koska Rust-kieleen ei kuulu ajonaikaista virtuaalikonetta tai muuta tulkkia, Rust-koodia on C-kielten tavoin mahdollista hyödyntää korkeamman tason kielissä kuten Pythonissa tai Rubyssa. Tässä tapauksessa sovelluksen tehokasta suorituskykyä ja muistinkäyttöä vaativat osat voidaan kirjoittaa Rustilla.\cite{RustInsideOtherLanguages} C-kielellä kirjoitettuja kirjastoja on myös mahdollista käyttää Rustilla toteuttamalla kirjastolle sidonnat, jotka käyttävät kirjaston funktioita FFI (\textit{Foreign Function Interface}) -rajapinnan kautta. C-kielellä kirjastoja ei siis tarvitse uudelleenkirjoittaa, jotta niitä voidaan hyödyntää Rust-kielessä. Tässä tapauksessa ohjelmoijan tulee luoda kirjastolle turvalliset sidonnat, jotka estävät mahdolliset virhetilanteet esimerkiksi muistinhallinnan osalta.
 
-Rust-kieli tukee virallisesti 32-bittisiä ja 64-bittisiä \textit{Microsoft Windows}, \textit{Linux} ja \textit{OS X} -käyttöjärjestelmiä.\cite{RustPlatformSupport} Muille alustoille, kuten ARM-arkkitehtuurille ja \textit{iOS} ja \textit{Android} -mobiilikäyttöjärjestelmille on rajatumpi tuki: alustoille on saatavilla valmiiksi käännetyt kirjastot ja sovellukset, mutta automatisoituja testejä ei ajeta julkaisun yhteydessä eikä niitä voi pitää siten yhtä toimintavarmoina. \textit{iOS} ja \textit{Android} -käyttöjärjestelmille on olemassa virallisesti tuetut C ja C++ -kieliä käyttävät kehitystyökalut. Esimerkiksi \textit{Android NDK} sallii sovellusten kehittämisen C ja C++ -kieliä käyttäen, tarjoten myös kirjastoja esimerkiksi 3D-piirtämistä, äänentoistoa ja säikeiden hallintaa varten.\cite{AndroidNDK}
+\subsection{Käyttöjärjestelmät}
+
+C++ -kieli ja sitä edeltävä C-kieli ovat yleisiä käyttöjärjestelmien ohjelmointikielinä: \textit{Microsoft Windows} on ohjelmoitu C++ -kielellä, \textit{FreeBSD} on ohjelmoitu käyttäen sekä C++ ja C-kieliä ja \textit{Linux} käyttää C-kieltä. Rust olisi muistinhallinnan puolesta otollinen käyttöjärjestelmän ytimen ohjelmointiin, jossa muistinhallinta-virheillä voi olla vakavia seurauksia järjestelmän vakauden ja tietoturvallisuuden kannalta. \textit{Redox} on Rust-kielellä kirjoitettu mikroydin-rakennetta hyödyntävä käyttöjärjestelmä.\cite{WhatRedoxIs} \textit{Redox} on vielä aikaisessa kehitysvaiheessa eikä siten sovellu jokapäiväiseen käyttöön.
+
+\textit{Tock} on Rust-kielellä toteutettu sulautettu käyttöjärjestelmä.\cite{OwnershipIsTheft} Tavallisista käyttöjärjestelmistä poiketen sulautetuissa käyttöjärjestelmissä on tiukat resurssivaatimukset: \textit{Tock} on suunniteltu muun muassa toimimaan ympäristössä, jossa käytössä on vain 64 kilotavua keskusmuistia, mikä on vaatinut lisäyksiä käyttöjärjestelmäytimeen, mikä ei muuten tukisi Rustin käyttämää muistinhallintaa.
+
+Rust tukee virallisesti 32-bittisiä ja 64-bittisiä \textit{Microsoft Windows}, \textit{Linux} ja \textit{OS X} -käyttöjärjestelmiä.\cite{RustPlatformSupport} Muille alustoille, kuten ARM-arkkitehtuurille ja \textit{iOS} ja \textit{Android} -mobiilikäyttöjärjestelmille on rajatumpi tuki: alustoille on saatavilla valmiiksi käännetyt kirjastot ja sovellukset, mutta automatisoituja testejä ei ajeta julkaisun yhteydessä eikä niitä voi pitää siten yhtä toimintavarmoina. \textit{iOS} ja \textit{Android} -käyttöjärjestelmille on olemassa virallisesti tuetut C ja C++ -kieliä käyttävät kehitystyökalut. Esimerkiksi \textit{Android NDK} sallii sovellusten kehittämisen C ja C++ -kieliä käyttäen, tarjoten myös kirjastoja esimerkiksi 3D-piirtämistä, äänentoistoa ja säikeiden hallintaa varten.\cite{AndroidNDK}
 
 \section{Peliohjelmointi Rustilla}
 
