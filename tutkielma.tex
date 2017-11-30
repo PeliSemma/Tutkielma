@@ -274,7 +274,7 @@ Rust-kielen muistinhallintaan kuuluu omistajuuden lisäksi kaksi merkittävää 
 
 \section{Vertailu C-kieliin}
 
-C++ ja C-ohjelmointikielet ovat Rustin tavoin käännettäviä ohjelmointikieliä, jotka soveltuvat suorituskykyä vaativien sovellusten kehittämiseen. Näihin kuuluvat muun muassa käyttöjärjestelmät, sulautetut järjestelmät ja pelimoottorit, joista esimerkiksi \textit{Unity} ja \textit{Unreal Engine} on kirjoitettu C++ -kieltä käyttäen. Rustille on saatavilla pelimoottorikirjastoja kuten \textit{Piston}, mutta luontityökaluja sisältävää pelinkehityskokonaisuutta ei toistaiseksi ole saatavilla Rust-kielelle.\cite{AreWeGameYet}
+C++ ja C-ohjelmointikielet ovat Rustin tavoin käännettäviä ohjelmointikieliä, jotka soveltuvat suorituskykyä vaativien sovellusten kehittämiseen. Näihin kuuluvat muun muassa käyttöjärjestelmät, sulautetut järjestelmät ja pelimoottorit, joista esimerkiksi \textit{Unity} ja \textit{Unreal Engine} on kirjoitettu C++ -kieltä käyttäen. Rustille on saatavilla pelimoottorikirjastoja kuten \textit{Piston}, mutta luontityökaluja sisältävää pelinkehityskokonaisuutta ei toistaiseksi ole saatavilla Rust-kielelle.\cite{AreWeGameYetEngines}
 
 Rust-lähdekoodin kääntämiseen käytetään rustc -työkalua, joka myös on kirjoitettu Rust-kielellä. Kääntäjä hyödyntää LLVM-kääntäjäinfrastruktuurin työkaluja, ja hyötyy siten kyseistä projektia koskevista suorituskykyparannuksista.\cite{HowFastIsRust} C++ -kielestä poiketen Rustille ei ole kuitenkaan saatavilla vaihtoehtoisia kääntäjiä. Laajassa käytössä oleviin C++ -kielen kääntäjiin kuuluu muun muassa LLVM-projektin \textit{Clang}, \textit{GNU GCC} ja \textit{Intel C++ Compiler}.
 
@@ -287,9 +287,22 @@ Rust-kieli tukee virallisesti 32-bittisiä ja 64-bittisiä \textit{Microsoft Win
 \section{Peliohjelmointi Rustilla}
 
 % Rust vaikuttaa pelien rakenteeseen
-Koska Rustin omistajuuden ja lainaamisen mekanismit ohjaavat välttämään samanai
+Rustin omistajuuden ja lainaamisen mekanismit estävät aliasoinnin ja muokattavuuden samanaikaisuuden. Tämä vaikuttaa pelimoottorin suunnittelussa tehtäviin rakenteisiin. Esimerkiksi syklisten viittausten käyttö vaikeutuu huomattavasti. Tällaisia viittauksia voi esiintyä esimerkiksi maailman ja sen sisältävien entitieettien välillä. Sykliset viittaukset voidaan toteuttaa käyttämällä älyosoitin yhdistelmiä, kuten $Rc<RefCell<T>>$ tai $Arc<Mutex<T>>$. Tämä kuitenkin vähentää suoritustehoa lisäämällä ajonaikaisia tarkistuksia. Lisäksi esiintyvät syklit täytyy rikkoa $Weak$-älyosoittimella, jotta ne vapautettaisiin ilman syklienkeruuta.%TODO: AVAAA TÄTÄ. Fix smaht pointar ulkoazu
 
 % Specs
+Vaihtoehtoinen tapa strukturoida peli on käyttää ECS (Entity Component System) mallia, jossa peli koostuu entiteetteistä, komponenteista ja systeemeistä.
+
+Komponentit ovat datasäiliöitä, joita käytetään moniin eri peliin liittyviin toiminnalisuuksiin. Esimerkiksi pelihahmojen sijainnit, nopeudet ja tekstuurit voivat olla komponentteja.
+
+Entiteetit ovat vain tunnuksia, joihin voi liittää eri komponentteja. Pelaajan hahmo, ammukset ja partikkeligeneraattori ovat esimerkkejä entiteetteistä. Partikkeligeneraattoriin ja pelaajan hahmoon liittyy todennäköisesti hyvin erilaiset komponentit.
+
+Systeemit prossesoivat entiteettejä lukemalla tai muokkaamalla niihin liittyviä komponentteja. Ne prosessoivat vain entiteettejä, joilta löytyy kaikki kyseisen systeemin tarvitsemat komponentit. Esimerkiksi yksinkertainen fysiikkasysteemi voisi vaatia entiteeteiltä sijainti-, nopeus- ja kiihtyvyyskomponentit toimintaansa varten. Rederöintisysteemi voisi taas vaatia sijainti-, tekstuuri-, malli- ja sävytinkomponentit.
+
+ECS lähestymistapa on tehokas, koska eri komponentit voidaan tallentaa omiin yhtenäisiin tietorakenteisiinsa. Tämä on järkevää välimuistitehokkuuden kannalta, sillä systeemit prosessoivat peräkkäin suuren määrän samantyyppisiä komponentteja. ECS tekee myös selvän jaon datan ja toiminnallisuuden välillä, joka lisää pelimoottorin modulaarisuutta.
+
+Rustissa on useita ECS-kirjastoja, joista yksi suosituimpia on \textit{specs} (Specs Parallel ECS)\cite{AreWeGameYetEcs}. Specs pystyy ajamaan systeemejä samanaikaisesti, jos niiden lukemis- ja muokkausvaatimukset komponentttisäiliöille eivät ole päällekkäisiä. Lisäksi systeemeille voidaan asettaa riippuvuussuhteita, jotka vaikuttavat niiden ajamisjärjestykseen.
+
+Specsissä pystyy myös paralellisoimaan systeemien sisäisesti (MINÄ TEIN TÄMÄN t. delma)
 
 % muita pelejä
 
