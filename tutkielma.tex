@@ -282,26 +282,34 @@ Rust-kielen muistinhallintaan kuuluu omistajuuden lisäksi kaksi merkittävää 
 
 \subsection{Kehitystyökalut}
 
-C++ ja C-ohjelmointikielet ovat Rustin tavoin käännettäviä ohjelmointikieliä, jotka soveltuvat suorituskykyä vaativien sovellusten kehittämiseen. Näihin kuuluvat muun muassa käyttöjärjestelmät, sulautetut järjestelmät ja pelimoottorit, joista esimerkiksi \textit{Unity} ja \textit{Unreal Engine} on kirjoitettu C++ -kieltä käyttäen. Rustille on saatavilla pelimoottorikirjastoja kuten \textit{Piston}, mutta luontityökaluja sisältävää pelinkehityskokonaisuutta ei toistaiseksi ole saatavilla Rust-kielelle.\cite{AreWeGameYetEngines}
+C ja C++ -ohjelmointikielet ovat Rustin tavoin käännettäviä ohjelmointikieliä, jotka soveltuvat suorituskykyä vaativien sovellusten kehittämiseen. Näihin kuuluvat muun muassa käyttöjärjestelmät, sulautetut järjestelmät ja pelimoottorit, joista esimerkiksi \textit{Unity} ja \textit{Unreal Engine} on kirjoitettu C++ -kieltä käyttäen. Rustille on saatavilla pelimoottorikirjastoja kuten Piston tai Amethyst, mutta Unityn tai Unreal Enginen kaltaisia kokonaisvaltaisia pelinkehityskokonaisuuksia ei toistaiseksi ole saatavilla Rust-kielelle.\cite{AreWeGameYetEngines}
 
-Rust-lähdekoodin kääntämiseen käytetään rustc -työkalua, joka myös on kirjoitettu Rust-kielellä. Kääntäjä hyödyntää LLVM-kääntäjäinfrastruktuurin työkaluja, ja hyötyy siten kyseistä projektia koskevista suorituskykyparannuksista.\cite{HowFastIsRust} C++ -kielestä poiketen Rustille ei ole kuitenkaan saatavilla vaihtoehtoisia kääntäjiä. Laajassa käytössä oleviin C++ -kielen kääntäjiin kuuluu muun muassa LLVM-projektin \textit{Clang}, \textit{GNU GCC} ja \textit{Intel C++ Compiler}.
+Rust-lähdekoodin kääntämiseen käytetään rustc -työkalua, joka on kirjoitettu Rust-kielellä. Kääntäjä hyödyntää LLVM-kääntäjäinfrastruktuurin työkaluja, ja hyötyy siten kyseistä projektia koskevista suorituskykyparannuksista.\cite{HowFastIsRust} C++ -kielestä poiketen Rustille ei ole kuitenkaan saatavilla vaihtoehtoisia kääntäjiä. Laajassa käytössä oleviin C++ -kielen kääntäjiin kuuluu muun muassa LLVM-projektin \textit{Clang}, \textit{GNU GCC} ja \textit{Intel C++ Compiler}.
 
 Koska Rust-kieleen ei kuulu ajonaikaista virtuaalikonetta tai muuta tulkkia, Rust-koodia on C-kielten tavoin mahdollista hyödyntää korkeamman tason kielissä kuten Pythonissa tai Rubyssa. Tässä tapauksessa sovelluksen tehokasta suorituskykyä ja muistinkäyttöä vaativat osat voidaan kirjoittaa Rustilla.\cite{RustInsideOtherLanguages} C-kielellä kirjoitettuja kirjastoja on myös mahdollista käyttää Rustilla toteuttamalla kirjastolle sidonnat, jotka käyttävät kirjaston funktioita FFI (\textit{Foreign Function Interface}) -rajapinnan kautta. C-kielellä kirjastoja ei siis tarvitse uudelleenkirjoittaa, jotta niitä voidaan hyödyntää Rust-kielessä. Tässä tapauksessa ohjelmoijan tulee luoda kirjastolle turvalliset sidonnat, jotka estävät mahdolliset virhetilanteet esimerkiksi muistinhallinnan osalta.
 
 \subsection{Käyttöjärjestelmät}
 
-C++ -kieli ja sitä edeltävä C-kieli ovat yleisiä käyttöjärjestelmien ohjelmointikielinä: \textit{Microsoft Windows} on ohjelmoitu C++ -kielellä, \textit{FreeBSD} on ohjelmoitu käyttäen sekä C++ ja C-kieliä ja \textit{Linux} käyttää C-kieltä. Rust olisi muistinhallinnan puolesta otollinen käyttöjärjestelmän ytimen ohjelmointiin, jossa muistinhallinta-virheillä voi olla vakavia seurauksia järjestelmän vakauden ja tietoturvallisuuden kannalta. \textit{Redox} on Rust-kielellä kirjoitettu mikroydin-rakennetta hyödyntävä käyttöjärjestelmä.\cite{WhatRedoxIs} \textit{Redox} on vielä aikaisessa kehitysvaiheessa eikä siten sovellu jokapäiväiseen käyttöön.
+C++ -kieli ja sitä edeltävä C-kieli ovat yleisiä käyttöjärjestelmien ohjelmointikielinä: \textit{Microsoft Windows} on ohjelmoitu C++ -kielellä, \textit{FreeBSD} on ohjelmoitu käyttäen sekä C++ ja C-kieliä ja \textit{Linux} käyttää C-kieltä. Rust olisi muistinhallinnan puolesta otollinen käyttöjärjestelmän ytimen ohjelmointiin, jossa muistinhallinta-virheillä voi olla vakavia seurauksia järjestelmän vakauden ja tietoturvallisuuden kannalta. \textit{Redox} on Rust-kielellä kirjoitettu mikroydin-rakennetta hyödyntävä käyttöjärjestelmä.\cite{WhatRedoxIs} Redox on vielä aikaisessa kehitysvaiheessa eikä siten sovellu jokapäiväiseen käyttöön.
 
-\textit{Tock} on Rust-kielellä toteutettu sulautettu käyttöjärjestelmä.\cite{OwnershipIsTheft} Tavallisista käyttöjärjestelmistä poiketen sulautetuissa käyttöjärjestelmissä on tiukat resurssivaatimukset: \textit{Tock} on suunniteltu muun muassa toimimaan ympäristössä, jossa käytössä on vain 64 kilotavua keskusmuistia, mikä on vaatinut lisäyksiä käyttöjärjestelmäytimeen, mikä ei muuten tukisi Rustin käyttämää muistinhallintaa.
+\textit{Tock} on Rust-kielellä toteutettu sulautettu käyttöjärjestelmä.\cite{OwnershipIsTheft} Tavallisista käyttöjärjestelmistä poiketen sulautetuissa käyttöjärjestelmissä on tiukat resurssivaatimukset. Tock on suunniteltu muun muassa toimimaan ympäristössä, jossa käytössä on vain 64 kilotavua keskusmuistia. Tämä on vaatinut lisäyksiä käyttöjärjestelmäytimeen, mikä ei muuten tukisi Rustin käyttämää muistinhallintaa. % TODO: Mitä tässä yritetään sanoa?
 
-Rust tukee virallisesti 32-bittisiä ja 64-bittisiä \textit{Microsoft Windows}, \textit{Linux} ja \textit{OS X} -käyttöjärjestelmiä.\cite{RustPlatformSupport} Muille alustoille, kuten ARM-arkkitehtuurille ja \textit{iOS} ja \textit{Android} -mobiilikäyttöjärjestelmille on rajatumpi tuki: alustoille on saatavilla valmiiksi käännetyt kirjastot ja sovellukset, mutta automatisoituja testejä ei ajeta julkaisun yhteydessä eikä niitä voi pitää siten yhtä toimintavarmoina. \textit{iOS} ja \textit{Android} -käyttöjärjestelmille on olemassa virallisesti tuetut C ja C++ -kieliä käyttävät kehitystyökalut. Esimerkiksi \textit{Android NDK} sallii sovellusten kehittämisen C ja C++ -kieliä käyttäen, tarjoten myös kirjastoja esimerkiksi 3D-piirtämistä, äänentoistoa ja säikeiden hallintaa varten.\cite{AndroidNDK}
+Rust tukee virallisesti 32-bittisiä ja 64-bittisiä \textit{Microsoft Windows}, \textit{Linux} ja \textit{OS X} -käyttöjärjestelmiä.\cite{RustPlatformSupport} Muille alustoille, kuten ARM-arkkitehtuurille ja \textit{iOS} ja \textit{Android} -mobiilikäyttöjärjestelmille on rajatumpi tuki: alustoille on saatavilla valmiiksi käännetyt kirjastot ja sovellukset, mutta automatisoituja testejä ei ajeta julkaisun yhteydessä eikä niitä voi pitää siten yhtä toimintavarmoina. iOS ja Android -käyttöjärjestelmille on olemassa virallisesti tuetut C ja C++ -kieliä käyttävät kehitystyökalut. Esimerkiksi \textit{Android NDK} sallii sovellusten kehittämisen C ja C++ -kieliä käyttäen, tarjoten myös kirjastoja esimerkiksi 3D-piirtämistä, äänentoistoa ja säikeiden hallintaa varten.\cite{AndroidNDK}
 
 \section{Peliohjelmointi Rustilla}
 
-% Rust vaikuttaa pelien rakenteeseen
-Rustin omistajuuden ja lainaamisen mekanismit estävät aliasoinnin ja muokattavuuden samanaikaisuuden. Tämä vaikuttaa pelimoottorin suunnittelussa tehtäviin rakenteisiin. Esimerkiksi syklisten viittausten käyttö vaikeutuu huomattavasti. Tällaisia viittauksia voi esiintyä esimerkiksi maailman ja sen sisältävien entitieettien välillä. Sykliset viittaukset voidaan toteuttaa käyttämällä älyosoitin yhdistelmiä, kuten $Rc<RefCell<T>>$ tai $Arc<Mutex<T>>$. Tämä kuitenkin vähentää suoritustehoa lisäämällä ajonaikaisia tarkistuksia. Lisäksi esiintyvät syklit täytyy rikkoa $Weak$-älyosoittimella, jotta ne vapautettaisiin ilman syklienkeruuta.%TODO: AVAAA TÄTÄ. Fix smaht pointar ulkoazu
+\subsection{Pelimoottorit}
+Kuten aiemmin jo mainittiin Rustissa ei ole vielä Unityn tai Unrealin tasoisia pelimoottoreita. Kuitenkin on kehitteillä kirjastoja, kuten Piston ja Amethyst. 
 
-% Specs
+Näistä Piston täysin modulaarinen pelimoottori eli se on käytännössä kokoelma erilaisia pelinkehityskirjastoja. Se koostuu muutamasta ydinkirjastosta ja isosta määrästä apukirjastoja. Ydinkirjastoihin kuuluvat \textit{pistoncore-input} syötteenhallintakirjasto, \textit{pistoncore-window} ikkunointikirjasto ja \textit{pistoncore-event_loop} pelisilmukanhallintakirjasto. Apukirjastojen joukosta löytyy esimerkiksi \textit{vecmath}, joka on yksinkertainen vektorimatematiikkakirjasto, \textit{piston3d-cam} 3d kameran hallintakirjasto ja \textit{texture_packer} tekstuurinpakkauskirjasto. Pistonin moduulaarisuudesta kertoo se että sekä sen ikkunointi- että sen 2d-grafiikkakirjastolla on useampi backend.  
+
+Amethyst taas on dataorientoitunut ja dataohjattu pelimoottori, joka on saanut inspiraationsa Bitsquid Enginestä\cite{AmethystReadme} (nykyisin Autodesk Stingray). \textit{Dataorientoitunut ohjelmointi} on ohjemointiparadigma, joka keskittyy dataan. Siinä kiinnitetään erityisesti huomiota datan tyyppiin, sen esitysmuotoon muistissa ja kuinka se prosessoidaan. Dataohjattu suunnittelumalli tarkoittaa taas sitä että ohjelman logiikkaa ohjautuu mahdollisimman paljon ulkoisen datan perusteella. Tällöin on mahdollista muokata ohjelman toimintaa ilman sen uudelleenkääntämistä.
+
+
+
+Rustin omistajuuden ja lainaamisen mekanismit estävät aliasoinnin ja muokattavuuden samanaikaisuuden. Tämä vaikuttaa pelimoottorin suunnittelussa tehtäviin rakententeellisiin valintoihin. Esimerkiksi syklisten viittausten käyttö vaikeutuu huomattavasti. Tällaisia viittauksia voi esiintyä esimerkiksi maailman ja sen sisältävien olioiden välillä. Rustissa sykliset viittaukset voidaan toteuttaa älyosoitin yhdistelmillä, mutta niiden käyttö vähentää suoritustehoa lisäämällä ajonaikaisia tarkistuksia. Lisäksi niiden käyttö siirtää osan vastuusta ylläpitää lainaamisen sääntöjä ohjelmoijalle.
+
+\subsection{ECS}
 Vaihtoehtoinen tapa strukturoida peli on käyttää ECS (Entity Component System) mallia, jossa peli koostuu entiteetteistä, komponenteista ja systeemeistä.
 
 Komponentit ovat datasäiliöitä, joita käytetään moniin eri peliin liittyviin toiminnalisuuksiin. Esimerkiksi pelihahmojen sijainnit, nopeudet ja tekstuurit voivat olla komponentteja.
@@ -312,9 +320,13 @@ Systeemit prossesoivat entiteettejä lukemalla tai muokkaamalla niihin liittyvi�
 
 ECS lähestymistapa on tehokas, koska eri komponentit voidaan tallentaa omiin yhtenäisiin tietorakenteisiinsa. Tämä on järkevää välimuistitehokkuuden kannalta, sillä systeemit prosessoivat peräkkäin suuren määrän samantyyppisiä komponentteja. ECS tekee myös selvän jaon datan ja toiminnallisuuden välillä, joka lisää pelimoottorin modulaarisuutta.
 
-Rustissa on useita ECS-kirjastoja, joista yksi suosituimpia on \textit{specs} (Specs Parallel ECS)\cite{AreWeGameYetEcs}. Specs pystyy ajamaan systeemejä samanaikaisesti, jos niiden lukemis- ja muokkausvaatimukset komponentttisäiliöille eivät ole päällekkäisiä. Lisäksi systeemeille voidaan asettaa riippuvuussuhteita, jotka vaikuttavat niiden ajamisjärjestykseen.
+Rustissa on useita ECS-kirjastoja, joista yksi suosituimpia on \textit{specs} (Specs Parallel ECS)\cite{AreWeGameYetEcs}. Specs pystyy ajamaan systeemejä samanaikaisesti, jos niiden lukemis- ja muokkausvaatimukset komponentttisäiliöille eivät ole päällekkäisiä. Lisäksi systeemeille voidaan asettaa riippuvuussuhteita, jotka vaikuttavat niiden ajamisjärjestykseen. Lisäksi Specsissä pystyy samanaikaistamaan komponenttiyhdistelmien läpikäyntiä Systeemeiden sisällä.
 
-Specsissä pystyy myös paralellisoimaan systeemien sisäisesti (MINÄ TEIN TÄMÄN t. delma)
+\subsection{Grafiikka}
+% Sidonta
+
+% Gfx, vulkano
+Rustissa on sitomiskirjastoja
 
 % muita pelejä
 
