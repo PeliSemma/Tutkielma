@@ -233,13 +233,11 @@ fn factorial(n: u64) -> u64 {
 
 \subsection{Omistajuus}
 
-
-%TODO muuttuja -> muisti. esitellään muistinhallinta ensiksi. viittauksien laskenta ja tracing GC ovat eri asioita. Eroa ei kannata varmaan edes mainita. Tulkkia käyttävät kielet eivät ole ainoita joissa GC, varmaan ei tarvitse mainita erikseen?
 Muistinhallinta on tärkeä osa ohjelmien toimintaa. Tätä varten monissa kielissä käytetään automaattista roskienkeruuta. Tämä vähentää ohjelmoijan vastuuta, mutta samalla myös vähentää mahdollisuuksia vaikuttaa muistinhallintaan. Tietyissä suorituskykykriittisissä ongelmissa automaattinen roskienkeruu saattaa tehdä epäoptimaalisia ratkaisuja. Tällaisia ongelmia esiintyy pelimoottoreissa esimerkiksi fysiikanmallinmuksessa. Tämän takia pelimoottorit toteutetaan usein kielillä joissa ei muistinhallinta on manuaalista. Manuaalisesti muistinhallitsevissa kielissä jää ohjelmoijan vastuuksi varata ja vapauttaa muisti oikeaoppisesti, josta johtuen ne ovat alttiita muistihallintavirheille. 
 
 Rust-ohjelmointikielessä ei käytetä automaattista roskienkeruuta, mutta siinä ei myöskään jätetä muistinhallintaa täysin ohjelmoijan vastuulle. Tämä on mahdollista, koska kieli takaa sen että jokaisella varatulla muistialueella on yksikäsittäinen omistaja, joka on vastuussa sen vapauttamisesta. Koska omistajuus on käännösaikainen käsite Rustissa, vastaa se manuaalista muistinhallintaa. Ohjelmointikielen tasolla muuttuja omistaa arvonsa. Kun muuttuja poistuu näkyvyysalueelta, niin sen omistama arvo vapautetaan. Muuttuja voi siirtää omistamansa arvon jollekkin muuttujalle tai funktiolle parametriksi, jolloin myös omistajuus siirtyy. Tämän jälkeen alkuperäinen muuttuja ei voi enää käyttää arvoa sillä se ei omista sitä.
 
-Koodissa \ref{ownerexample} havainnollistetaan mitä tapahtuu kun muuttujaa yritetään käyttää sen arvon siirron jälkeen. Virheviestistä nähdään selvästi missä arvon siirto ja missä virheellinen muuttujan uudelleenkäyttö tapahtuvat. Lisäksi viestissä huomautetaan $Copy$-trait toteutuksen puuttumisesta $String$-tyypille. Rustissa siirrot ovat aina muistisiirtoja pinossa. $Copy$-traitin toteuttavat tyypit takaavat, että kaikki niihin liittyvä data sijaitsee pinossa. Tämän takia niiden siirrossa tehdään ns. syväkopiointi. \textit{Syväkopiointi}(Deep copy) tarkoittaa kaiken muuttujaan liittyvän datan kopioimista. Syväkopioinnin vastakohta on \textit{pinnallinen kopiointi}. . (Shallow copy) Koska siirto on syväkopio $Copy$-traitin toteuttaville tyypeille, ei tämän tyyppisillä muuttujilla ole siirtos.
+Koodissa \ref{ownerexample} havainnollistetaan mitä tapahtuu kun muuttujaa yritetään käyttää sen arvon siirron jälkeen. Virheviestistä nähdään selvästi missä arvon siirto ja missä virheellinen muuttujan uudelleenkäyttö tapahtuvat. Lisäksi viestissä huomautetaan $Copy$-trait toteutuksen puuttumisesta $String$-tyypille. Rustissa siirrot ovat aina muistisiirtoja pinossa. $Copy$-traitin toteuttavat tyypit takaavat, että kaikki niihin liittyvä data sijaitsee pinossa. Tämän takia niiden siirrossa tehdään ns. syväkopiointi. \textit{Syväkopiointi}(Deep copy) tarkoittaa kaiken muuttujaan liittyvän datan kopioimista. Syväkopioinnin vastakohta on \textit{pinnallinen kopiointi}. . (Shallow copy) Koska siirto on syväkopio $Copy$-traitin toteuttaville tyypeille, ei tämän tyyppisillä muuttujilla ole siirtosemantiikkaa.
 
 \begin{caplab}{ownerexample}{Muuttujan käyttö omistajuuden siirron jälkeen.}
 \begin{code}{rust}
@@ -269,13 +267,16 @@ error[E0382]: use of moved value: 'string'
 \end{code}
 %$
 \end{caplab} 
- 
-Ohjelmointikielet vaativat muuttujien luomisen lisäksi niiden poistamisen. Käännetyissä kielissä tämä voi vaatia ohjelmoijalta muuttujien manuaalisen poistamista, kun niitä ei enää käytetä. Esimerkiksi C käyttää manuaalista muistinhallintaa. Useissa tulkkia käyttävissä kielissä muuttujaan kohdistuvia viittauksia lasketaan suorituksen aikana; kun muuttujaan ei enää viitata, automaattinen roskienkeräys ennen pitkää löytää käyttämättömän muuttujan ja poistaa sen. Tämä ei vaadi ohjelmoijalta yleensä lisätöitä, mutta roskankerääjä lisää ohjelman resurssivaatimuksia. Roskienkeräystä käyttäviin kieliin kuuluvat muun muassa Python ja Java.
-
-Rust varmistaa muuttujien muistinhallinnan käyttämällä omistamisen käsitettä, joka ei vaadi suorituksen aikaisen roskankeruun käyttöä, eikä myöskään muuttujien manuaalista poistamista. Kun muuttuja luodaan missä tahansa osassa koodia, sille määritellään omistaja muuttujan vaikutusalueen perusteella. Esimerkiksi metodissa main luodut muuttujat saavat omistajakseen kyseisen metodin. Kun kyseisen main-metodin suoritus on päättynyt, kyseisen metodin omistamat muuttujat poistetaan välittömästi ja niiden varaama muistialue palautetaan järjestelmän käyttöön. Tätä periaatetta on havainnollistettu esimerkissä 2. %Esimerkki 2. Käytetään varmaan String, jossa omistajuus tulee esiin (numerot ovat Copy).
 
 \subsection{Lainaaminen ja elinajat}
 
+Jos Rustissa olisi vain omistajuus, niin funktioiden pitäisi palauttaa parametrinsa, jotta niitä voitaisiin uudelleenkäyttää. Parametrien uudelleenkäyttö on kuitenkin todella yleistä. Tätä varten Rustissa on käytössä lainaamisen käsite. Sen sijaan että omistajuus siirrettäisiin, arvoa voidaan lainata. Lainauksen aikana alkuperäinen omistaja ei voi käyttää arvoa, mutta se saa sen takaisin käyttöön heti kun lainaus on loppunut. Rustissa on kaksi eri lainaustyyppiä: Muokkaamaton ja muokattava sellainen.
+
+\textit{Muokkaamatommassa lainauksessa} lainaaja ei pysty muokkaamaan lainattua arvoa, mutta koska muokkaaminen ei ole mahdollista lainauksia voi olla useita kappaleita samanaikaisesti (aliasointi). \textit{Muokattavia lainauksia} voi sen sijaan olla vain yksi, mutta koska aliasointia ei ole niitä on mahdollista muokata. Samasta arvosta ei voi myöskään olla muokattavaa ja muokkaamatonta lainausta samanaikasesti. Tämänlainen kahtiajako välttää muistiturvallisuusongelmia kuten iteraattori invalidaatioita. 
+
+
+
+%TODO poista tämä kappale kun uudelleenkirjoitus on valmis.
 Rust-kielen muistinhallintaan kuuluu omistajuuden lisäksi kaksi merkittävää alakäsitettä: lainaaminen ja elinaika. Lainaaminen tarkoittaa muuttujan viittauksen antamista väliaikaisesti johonkin toiseen skooppiin; esimerkiksi toiseen metodiin. Useimmista kielistä poiketen Rust kuitenkin määrittää invariantin, joka tarkastetaan käännösvaiheessa: muuttujalla voi olla joko useita muuttumattomia (vain-luku) viittauksia, yksi muuttava (luku ja kirjoitus) viittaus, mutta ei kummankin tyyppistä viittausta samanaikaisesti. Tällä estetään virhetilanteet, jossa yksi tai useampi taho lukee muuttujaa samaan aikaan kun sitä muutetaan. Kielen standardikirjastossa on saatavilla erilaisia synkronointialkioita, jotka sallivat esimerkiksi ``yksi kirjoittaja, usea lukija`` -malliset tilanteet.
 
 \section{Vertailu C-kieliin}
@@ -305,7 +306,7 @@ Näistä Piston täysin modulaarinen pelimoottori eli se on käytännössä koko
 
 Amethyst\cite{Amethyst} taas on dataorientoitunut ja dataohjattu pelimoottori, joka on saanut inspiraationsa Bitsquid Enginestä (nykyisin Autodesk Stingray)\cite{AmethystReadme}. \textit{Dataorientoitunut ohjelmointi} on ohjemointiparadigma, joka keskittyy dataan. Siinä kiinnitetään erityisesti huomiota datan tyyppiin, sen esitysmuotoon muistissa ja kuinka se prosessoidaan. \textit{Dataohjattu suunnittelumalli} tarkoittaa taas sitä että ohjelman logiikkaa ohjautuu mahdollisimman paljon ulkoisen datan perusteella. Tällöin on mahdollista muokata ohjelman toimintaa ilman sen uudelleenkääntämistä. \cite{AmethystGlossary}
 
-Amethystin ominaisuuksiin kuuluvat yksinkertainen pelitilan hallinta pinoautomaatilla, skriptaus API, gfx-rs kirjastoon pohjautuva renderöinti ja specs kirjastoon pohjautuva ECS-malli. Piston ja Amethyst noudattavat kummatkin hyvin Unixmaista lähestymistapaa: molemmat koostuvat pienistä integroiduista palasista. Amethyst muodostaa näistä kahdesta selkeämmän kokonaisuuden kun taas piston on modulaarisempi kokonaisuus erilaisia kirjastoja.
+Amethystin ominaisuuksiin kuuluvat yksinkertainen pelitilan hallinta pinoautomaatilla, skriptausrajapinta, gfx-rs kirjastoon pohjautuva renderöinti ja specs kirjastoon pohjautuva ECS-malli. Piston ja Amethyst noudattavat kummatkin hyvin Unixmaista lähestymistapaa: molemmat koostuvat pienistä integroiduista palasista. Amethyst muodostaa näistä kahdesta selkeämmän kokonaisuuden kun taas piston on modulaarisempi kokonaisuus erilaisia kirjastoja.
 
 \subsection{ECS}
 Rustin omistajuuden ja lainaamisen mekanismit estävät aliasoinnin ja muokattavuuden samanaikaisuuden. Tämä vaikuttaa pelimoottorin suunnittelussa tehtäviin rakententeellisiin valintoihin. Esimerkiksi syklisten viittausten käyttö vaikeutuu huomattavasti. Tällaisia viittauksia voi esiintyä esimerkiksi maailman ja sen sisältävien olioiden välillä. Rustissa sykliset viittaukset voidaan toteuttaa älyosoitin yhdistelmillä, mutta niiden käyttö vähentää suoritustehoa lisäämällä ajonaikaisia tarkistuksia. Lisäksi niiden käyttö siirtää osan vastuusta ylläpitää lainaamisen sääntöjä ohjelmoijalle.
@@ -324,13 +325,26 @@ Rustissa on useita ECS-kirjastoja, joista yksi suosituimpia on \textit{specs} (S
 
 Specs pystyy ajamaan systeemejä samanaikaisesti, jos niiden lukemis- ja muokkausvaatimukset komponentttisäiliöille eivät ole päällekkäisiä. Siinä systeemeille voidaan asettaa riippuvuussuhteita, jotka vaikuttavat niiden ajamisjärjestykseen. Lisäksi Specsissä pystyy samanaikaistamaan komponenttiyhdistelmien läpikäyntiä Systeemeiden sisällä.
 
-Specissä eri komponenteille voidaan valita erilaisia säiliöitä niiden käyttötarkoituksen mukaan. 
+Specissä eri komponenteille voidaan valita erilaisia säiliöitä niiden käyttötarkoituksen mukaan. $VecStorage$ käyttää sisäisesti yksinkertaista dynaamisesti kasvavaa taulukkoa, joka on muistitehokas kun komponentti löytyy lähes kaikilta entiteeteiltä. 
+
+Jos komponentti ei löydy tarpeeksi monelta entiteetiltä, $VecStorage$:n sisäiseen taulukkoon jää suuria aukkoja, koska siinä entiteettien tunnukset ovat suoraan taulukon indeksejä. $DenseVecStorage$ korjaa tämän ongelman käyttämällä uudelleenohjaustaulukkomenetelmää. Siinä on datataulukon lisäksi kaksi aputaulukkoa, joiden avulla varsinainen data pystytään tallentamaan tiiviisti.
+
+$HashMapStorage$:ssa komponentit tallennetaan hajautustauluun niin että entiteetti toimii avaimena ja komponentti arvona. Sen iteroiminen on hitaampaa, mutta se on muistitehokkaampi, jos komponentti liittyy vain pieneen määrään entiteeteistä.  
+
+Komponentti, joka ei sisällä varsinaista dataa vaan toimii vain merkkaimena, kannattaa säilöä $NullStorage$:ssa. Esimerkiksi jonkun tietyn vihollistyypin tekoälysysteemi voi tunnistaa kaikki oikeantyyppiset entiteetit tämänlaisen komponentin avulla. 
 
 \subsection{Grafiikka}
 % Sidonta
 
 % Gfx, vulkano
-Rustissa on sitomiskirjastoja
+Rustille on tehty suoria sidoksia yleisimmille grafiikkarajapinnoille, kuten OpenGL:lle ja Vulkanille. Rustille on myös olemassa grafiikkakirjastoja jotka käyttävät näitä suoria sidoksia ytimessään, mutta tarjoavat käyttäjälle rustmaisemman rajapinnan. Tällaisia kirjastoja ovat esimerkiksi gfx-rs ja glium.
+
+\textit{Gfx-rs} on abstrahoitu grafiikka kirjasto, joka frontend - backend kahtiajakoa. Gfx kirjaston frontend osio on vulkanin kaltainen, mutta abstraktimpi grafiikkarajapinta. Sille on toteutettu backendit Vulkanille, Direct3D 12:lle Metalille ja OpenGL 2.1+/ES2:lle. Gfx on yksi suosituimpia grafiikkakirjastoja ja sitä tukevat esimerkiksi aiemmin mainitut Piston- ja Amethyst pelimoottorit.
+
+\textit{Glium} on turvallinen sidoskirjasto OpenGl:lle. Se pyrkii piilottamaan OpenGL:n tilakonemaisen rajapinnan ja tarjoamaan rustmaisemman ja tilattoman rajapinnan sen tilalle. Se pyrkii esimerkiksi välttämään OpenGL:n virhetilanteita käännösaikaisesti. Vaikka Gliumin alkuperäinen kehittäjä on siirtynyt kehittämään Vulkano kirjastoa, sen yhteisö ylläpitää sitä edelleen.
+
+
+
 
 % muita pelejä
 
