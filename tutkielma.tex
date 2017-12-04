@@ -175,61 +175,16 @@ Suurimpiin Rustia käyttäviin projekteihin kuuluu Mozillan kehittämä Servo -w
 Muihin Rust-kieltä hyödyntäviin organisaatioihin kuuluu muun muassa Dropbox ja Canonical\footnote{https://www.rust-lang.org/en-US/friends.html}.
 
 \section{Perusteet}
-\begin{caplab}{helloworld}{Tulostaa "Hei maailma"}
-\begin{code}{rust}
-fn main() {
-    println!("Hei maailma");
-}
-\end{code}
-\begin{code}{text}
-$ cargo run
-Hei maailma
-\end{code}
-%$
-\end{caplab}
-
 
 Ohjelmointikieleen tutustuessa on tapana kirjoittaa klassinen ``Hei maailma`` -ohjelma joka tulostaa kyseisen lauseen. Koodi \ref{helloworld} on kyseisen ohjelman Rust toteutus. Kyseinen toteutus ei poikkea juurikaan muiden proseduraalisten kielien toteutuksista. Suurin ero muiden kielien toteutuksiin on se että tulostuskomento on makro. Tulostuskomento on toteutettu makrolla tekstin muotoilun helpottamiseksi. Koodissa \ref{helloworld2} on esimerkki tästä.
-\begin{caplab}{helloworld2}{Tulostaa satunnaisluvun}
-\begin{code}{rust}
-fn main() {
-    let s_luku: i32 = 4; // Valittu reilulla nopanheitolla.
-    println!("Satunnaislukusi on {}", s_luku);
-}
-\end{code}
-\end{caplab}
 
 Rustissa muuttujat määritellään käyttäen \textbf{let} avainsanaa ja muuttujan tyyppi erotellaan kaksoipistellä. Koodissa \ref{helloworld2} muuttuja nimeltä $s\_luku$ on 32-bittinen etumerkillinen kokonaisluku. Muuttujat oletusarvoisesti eivät ole muokattavissa. Muokattavat muuttujat määritellään käyttäen avainsanayhdistelmää \textbf{let mut}. 
-
-\begin{caplab}{factorialiter}{Funktio joka laskee $n!$ iteratiivisesti.}
-\begin{code}{rust}
-fn factorial(n: u64) -> u64 {
-    let mut result = 1;
-    for i in 1..(n + 1) {
-        result *= i;
-    }
-    return result;
-}
-\end{code}
-\end{caplab}
 
 Useimmissa tapauksissa muuttujan tyypin voi jättää merkkaamatta, koska Rust osaa päätellä sen käännösaikana. Kuitenkin funktioiden parametrien ja palautusarvon tyypit täytyy merkata, koska Rustissa ei ole ohjelmanlaajuista tyyppipäättelyä. Funktion palautusarvon tyyppi määritellään nuolen \textbf{->} jälkeen. Koodissa \ref{factorialiter} funktion parametri n ja palautusarvo ovat 64-bittisiä etumerkittömiä kokonaislukuja.
 
 Rustin \textbf{for}-silmukat ovat \textit{for--each}-tyyppisiä, jossa käydään iteraattorin kaikki alkiot läpi. Esimerkiksi koodissa \ref{factorialiter} käydään kaikki välin $[1, n+1)$ kokonaislukuarvot läpi.
 
 Rustissa ei tarvitse käyttää \textbf{return} avainsanaa, jos arvo palautetaan funktion lopussa. Tällöin ei myöskään merkata puolipistettä.
-
-\begin{caplab}{factorialrec}{Funktio joka laskee $n!$ rekursiivisesti.}
-\begin{code}{rust}
-fn factorial(n: u64) -> u64 {
-    if n == 0 {
-        1
-    } else {
-        n * factorial(n-1)
-    }
-}
-\end{code}
-\end{caplab}
 
 \subsection{Omistajuus}
 
@@ -239,129 +194,15 @@ Rust-ohjelmointikielessä ei käytetä automaattista roskienkeruuta, mutta siin�
 
 Koodissa \ref{ownerexample} havainnollistetaan mitä tapahtuu kun muuttujaa yritetään käyttää sen arvon siirron jälkeen. Virheviestistä nähdään selvästi missä arvon siirto ja missä virheellinen muuttujan uudelleenkäyttö tapahtuvat. Lisäksi viestissä huomautetaan $Copy$-trait toteutuksen puuttumisesta $String$-tyypille. Rustissa siirrot ovat aina muistisiirtoja pinossa. $Copy$-traitin toteuttavat tyypit takaavat, että kaikki niihin liittyvä data sijaitsee pinossa. Tämän takia niiden siirrossa tehdään ns. syväkopiointi. \textit{Syväkopiointi}(Deep copy) tarkoittaa kaiken muuttujaan liittyvän datan kopioimista. Syväkopioinnin vastakohta on \textit{pinnallinen kopiointi}. . (Shallow copy) Koska siirto on syväkopio $Copy$-traitin toteuttaville tyypeille, ei tämän tyyppisillä muuttujilla ole siirtosemantiikkaa.
 
-\begin{caplab}{ownerexample}{Muuttujan käyttö omistajuuden siirron jälkeen.}
-\begin{code}{rust}
-fn main() {
-    let mut string = String::from("Hello, ");
-    add_world(string);
-    add_world(string);
-}
-
-fn add_world(mut string: String) {
-    string.push_str("World!");
-}
-\end{code}
-\begin{code}{text}
-$ cargo run
-error[E0382]: use of moved value: 'string'
- --> src/main.rs:4:15
-  |
-3 |     add_world(string);
-  |               ------ value moved here
-4 |     add_world(string);
-  |               ^^^^^^ value used here after move
-  |
-  = note: move occurs because 'string' has type 
-  'std::string::String', which does not implement 
-  the 'Copy' trait
-\end{code}
-%$
-\end{caplab} 
-
 \subsection{Lainaaminen ja elinajat}
 
 Jos Rustissa olisi vain omistajuus, niin funktioiden pitäisi palauttaa parametrinsa, jotta niitä voitaisiin uudelleenkäyttää. Parametrien uudelleenkäyttö on kuitenkin todella yleistä. Tätä varten Rustissa on käytössä lainaamisen käsite. Sen sijaan että omistajuus siirrettäisiin, arvoa voidaan lainata. Lainauksen aikana alkuperäinen omistaja ei voi käyttää arvoa, mutta se saa sen takaisin käyttöön heti kun lainaus on loppunut. Rustissa on kaksi eri lainaustyyppiä: Muokkaamaton ja muokattava sellainen.
 
 \textit{Muokkaamatommassa lainauksessa} lainaaja ei pysty muokkaamaan lainattua arvoa, mutta koska muokkaaminen ei ole mahdollista lainauksia voi olla useita kappaleita samanaikaisesti (aliasiointi). \textit{Muokattavia lainauksia} voi sen sijaan olla vain yksi, mutta koska aliasointia ei ole niitä on mahdollista muokata. Samasta arvosta ei voi myöskään olla muokattavaa ja muokkaamatonta lainausta samanaikasesti. Tämänlainen kahtiajako välttää muistiturvallisuusongelmia kuten iteraattori invalidaatioita. Koodissa \ref{iterationexample} on esimerkki iteraattori invalidaatio tilanteesta. Virheviestistä näkee kuinka lainauksen säännöt estävät ongelman käännösaikana. Useimmissa kielissä, kuten Javassa ja C++:ssa, vastaavanlainen koodi kääntyisi ja siitä aiheutuvat ongelmat huomattaisiin vasta ajonaikana. Java heittäisi tässä tapauksessa poikkeuksen, kun taas C++:ssa se olisi muistiturvallisuusriski. Lainaaminen auttaa myös estämään kilpatilanteista johtuvia samanaikaisuusongelmia. Kilpatilanne voi tapahtua vain, jos useampi taho pääsee samanaikaisesti käsiksi arvoon ja ainakin yksi niistä muokkaa sitä. Rustin lainaamissäännöt nimenomaan eivät salli tätä.
 
-\begin{caplab}{iterationexample}{Iteraatio invalidaatio}
-\begin{code}{rust}
-fn main() {
-    let mut list = vec![1,2,4,5,6,4,6,7];
-    
-    for n in &list {
-        list.push(*n);
-    }
-}
-\end{code}
-\begin{code}{text}
-$ cargo run
-error[E0502]: cannot borrow `list` as mutable because it
-is also borrowed as immutable
- --> src/main.rs:6:9
-  |
-5 |     for n in &list {
-  |               ---- immutable borrow occurs here
-6 |         list.push(*n);
-  |         ^^^^ mutable borrow occurs here
-7 |     }
-  |     - immutable borrow ends here
-\end{code}
-%$
-\end{caplab}
-
 Kuten jo aiemmin mainittiin, arvot vapautetaan aina silloin kun niiden omistajat poistuvat näkyvyysalueiltansa. Vapauttamisen jälkeen kaikki arvoon liittyvät lainaukset osoittaisivat vapautettuun muistiin eli ne olisivat niin sanottuja roikkuvia viittauksia (Dangling references).
 
-\begin{caplab}{dangling}{Roikkuva viittaus}
-\begin{code}{rust}
-fn ei_toimi<'a>() -> &'a String {
-    let merkkijono = String::from("ei toimi");
-    &merkkijono
-}
-\end{code}
-\begin{code}{text}
-$ cargo run
-error[E0597]: `merkkijono` does not live long enough
- --> src/main.rs:3:6
-  |
-3 |     &merkkijono
-  |      ^^^^^^^^^^ does not live long enough
-4 | }
-  | - borrowed value only lives until here
-  |
-note: borrowed value must be valid for the lifetime 'a as 
-defined on the function body at 1:1...
- --> src/main.rs:1:1
-  |
-1 | / fn ei_toimi<'a>() -> &'a String {
-2 | |     let merkkijono = String::from("ei toimi");
-3 | |     &merkkijono
-4 | | }
-  | |_^
-\end{code}
-%$
-\end{caplab}
-
 Jotta tätä ei tapahtuisi, lainauksien oikeellisuutta pitää seurata jollain tavalla. Rustissa kaikilla lainauksilla on tätä varten \textit{elinaika}, jonka täytyy aina olla lyhyempi kuin sen lainaaman arvon elinaika. Elinaika pystytään useimmissa tapauksissa päättelemään koodista automaattisesti. Joskus tämä ei ole kuitenkaan mahdollista, jolloin ohjelmoijan täytyy merkata se koodissa erillisellä elinaikamerkillä. Esimerkissä \ref{lifetimes} on kaksi funktiota. Ensimmäisessä ei ole elinaikamerkintää, jonka takia Rust ei tiedä kummasta lainauksesta palautusarvona oleva lainaus tulee. Elinaikamerkatussa versiossa taas elinaikamerkintä yhdistää parametrin $b$ elinajan palautusarvon elinaikaan, jolloin Rust tietää kuinka pitkää palautusarvoa voi käyttää.
-
-\begin{caplab}{lifetimes}{Elinaikamerkinnän tarpeellisuus}
-\begin{code}{rust}
-fn ei_toimi(a: &String, b: &String) -> &String {
-    println!("{}", a);
-    b
-}
-
-fn toimii<'b>(a: &String, b: &'b String) -> &'b String {
-    println!("{}", a);
-    b
-}
-\end{code}
-\begin{code}{text}
-$ cargo run
-error[E0106]: missing lifetime specifier
- --> src/main.rs:1:40
-  |
-1 | fn ei_toimi(a: &String, b: &String) -> &String {
-  |                                        ^ expected
-                                             lifetime
-                                             parameter
-  |
-  = help: this function's return type contains a borrowed
-  value, but the signature does not say whether it is
-  borrowed from `a` or `b`
-\end{code}
-%$
-\end{caplab}
 
 %TODO poista tämä kappale kun uudelleenkirjoitus on valmis.
 Rust-kielen muistinhallintaan kuuluu omistajuuden lisäksi kaksi merkittävää alakäsitettä: lainaaminen ja elinaika. Lainaaminen tarkoittaa muuttujan viittauksen antamista väliaikaisesti johonkin toiseen skooppiin; esimerkiksi toiseen metodiin. Useimmista kielistä poiketen Rust kuitenkin määrittää invariantin, joka tarkastetaan käännösvaiheessa: muuttujalla voi olla joko useita muuttumattomia (vain-luku) viittauksia, yksi muuttava (luku ja kirjoitus) viittaus, mutta ei kummankin tyyppistä viittausta samanaikaisesti. Tällä estetään virhetilanteet, jossa yksi tai useampi taho lukee muuttujaa samaan aikaan kun sitä muutetaan. Kielen standardikirjastossa on saatavilla erilaisia synkronointialkioita, jotka sallivat esimerkiksi ``yksi kirjoittaja, usea lukija`` -malliset tilanteet.
@@ -457,9 +298,171 @@ Rustille on tehty suoria sidoksia yleisimmille grafiikkarajapinnoille, kuten Ope
 
 % uncomment the following
 
-% \newpage
-% \appendix
-% 
-% \section{Esimerkkiliite}
+\newpage
+\appendix
+
+\section{Koodiesimerkit}
+
+\begin{caplab}{helloworld}{Tulostaa "Hei maailma"}
+\begin{code}{rust}
+fn main() {
+    println!("Hei maailma");
+}
+\end{code}
+\begin{code}{text}
+$ cargo run
+Hei maailma
+\end{code}
+%$
+\end{caplab}
+
+\begin{caplab}{helloworld2}{Tulostaa satunnaisluvun}
+\begin{code}{rust}
+fn main() {
+    let s_luku: i32 = 4; // Valittu reilulla nopanheitolla.
+    println!("Satunnaislukusi on {}", s_luku);
+}
+\end{code}
+\end{caplab}
+
+\begin{caplab}{factorialiter}{Funktio joka laskee $n!$ iteratiivisesti.}
+\begin{code}{rust}
+fn factorial(n: u64) -> u64 {
+    let mut result = 1;
+    for i in 1..(n + 1) {
+        result *= i;
+    }
+    return result;
+}
+\end{code}
+\end{caplab}
+
+\begin{caplab}{factorialrec}{Funktio joka laskee $n!$ rekursiivisesti.}
+\begin{code}{rust}
+fn factorial(n: u64) -> u64 {
+    if n == 0 {
+        1
+    } else {
+        n * factorial(n-1)
+    }
+}
+\end{code}
+\end{caplab}
+
+\begin{caplab}{ownerexample}{Muuttujan käyttö omistajuuden siirron jälkeen.}
+\begin{code}{rust}
+fn main() {
+    let mut string = String::from("Hello, ");
+    add_world(string);
+    add_world(string);
+}
+
+fn add_world(mut string: String) {
+    string.push_str("World!");
+}
+\end{code}
+\begin{code}{text}
+$ cargo run
+error[E0382]: use of moved value: 'string'
+ --> src/main.rs:4:15
+  |
+3 |     add_world(string);
+  |               ------ value moved here
+4 |     add_world(string);
+  |               ^^^^^^ value used here after move
+  |
+  = note: move occurs because 'string' has type 
+  'std::string::String', which does not implement 
+  the 'Copy' trait
+\end{code}
+%$
+\end{caplab}
+
+\begin{caplab}{iterationexample}{Iteraatio invalidaatio}
+\begin{code}{rust}
+fn main() {
+    let mut list = vec![1,2,4,5,6,4,6,7];
+    
+    for n in &list {
+        list.push(*n);
+    }
+}
+\end{code}
+\begin{code}{text}
+$ cargo run
+error[E0502]: cannot borrow `list` as mutable because it
+is also borrowed as immutable
+ --> src/main.rs:6:9
+  |
+5 |     for n in &list {
+  |               ---- immutable borrow occurs here
+6 |         list.push(*n);
+  |         ^^^^ mutable borrow occurs here
+7 |     }
+  |     - immutable borrow ends here
+\end{code}
+%$
+\end{caplab}
+
+\begin{caplab}{dangling}{Roikkuva viittaus}
+\begin{code}{rust}
+fn ei_toimi<'a>() -> &'a String {
+    let merkkijono = String::from("ei toimi");
+    &merkkijono
+}
+\end{code}
+\begin{code}{text}
+$ cargo run
+error[E0597]: `merkkijono` does not live long enough
+ --> src/main.rs:3:6
+  |
+3 |     &merkkijono
+  |      ^^^^^^^^^^ does not live long enough
+4 | }
+  | - borrowed value only lives until here
+  |
+note: borrowed value must be valid for the lifetime 'a as 
+defined on the function body at 1:1...
+ --> src/main.rs:1:1
+  |
+1 | / fn ei_toimi<'a>() -> &'a String {
+2 | |     let merkkijono = String::from("ei toimi");
+3 | |     &merkkijono
+4 | | }
+  | |_^
+\end{code}
+%$
+\end{caplab}
+
+\begin{caplab}{lifetimes}{Elinaikamerkinnän tarpeellisuus}
+\begin{code}{rust}
+fn ei_toimi(a: &String, b: &String) -> &String {
+    println!("{}", a);
+    b
+}
+
+fn toimii<'b>(a: &String, b: &'b String) -> &'b String {
+    println!("{}", a);
+    b
+}
+\end{code}
+\begin{code}{text}
+$ cargo run
+error[E0106]: missing lifetime specifier
+ --> src/main.rs:1:40
+  |
+1 | fn ei_toimi(a: &String, b: &String) -> &String {
+  |                                        ^ expected
+                                             lifetime
+                                             parameter
+  |
+  = help: this function's return type contains a borrowed
+  value, but the signature does not say whether it is
+  borrowed from `a` or `b`
+\end{code}
+%$
+\end{caplab}
+
+Liitteet tänne
 
 \end{document}
