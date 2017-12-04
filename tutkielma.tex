@@ -118,7 +118,7 @@ Viides kappale esittelee Rustille saatavilla olevia peliohjelmointiin soveltuvia
 
 % The following can be used to specify keywords and classification of the paper:
 
-\keywords{avainsana 1, avainsana 2, avainsana 3}
+\keywords{ohjelmointikieli, peliohjelmointi}
 
 % classification according to ACM Computing Classification System (http://www.acm.org/about/class/)
 % This is probably mostly relevant for computer scientists
@@ -175,6 +175,131 @@ Suurimpiin Rustia käyttäviin projekteihin kuuluu Mozillan kehittämä Servo -w
 Muihin Rust-kieltä hyödyntäviin organisaatioihin kuuluu muun muassa Dropbox ja Canonical\footnote{https://www.rust-lang.org/en-US/friends.html}.
 
 \section{Perusteet}
+
+Ohjelmointikieleen tutustuessa on tapana kirjoittaa klassinen ``Hei maailma`` -ohjelma joka tulostaa kyseisen lauseen. Koodi \ref{helloworld} on kyseisen ohjelman Rust toteutus. Kyseinen toteutus ei poikkea juurikaan muiden proseduraalisten kielien toteutuksista. Suurin ero muiden kielien toteutuksiin on se että tulostuskomento on makro. Tulostuskomento on toteutettu makrolla tekstin muotoilun helpottamiseksi. Koodissa \ref{helloworld2} on esimerkki tästä.
+
+Rustissa muuttujat määritellään käyttäen \textbf{let} avainsanaa ja muuttujan tyyppi erotellaan kaksoipistellä. Koodissa \ref{helloworld2} muuttuja nimeltä $s\_luku$ on 32-bittinen etumerkillinen kokonaisluku. Muuttujat oletusarvoisesti eivät ole muokattavissa. Muokattavat muuttujat määritellään käyttäen avainsanayhdistelmää \textbf{let mut}. 
+
+Useimmissa tapauksissa muuttujan tyypin voi jättää merkkaamatta, koska Rust osaa päätellä sen käännösaikana. Kuitenkin funktioiden parametrien ja palautusarvon tyypit täytyy merkata, koska Rustissa ei ole ohjelmanlaajuista tyyppipäättelyä. Funktion palautusarvon tyyppi määritellään nuolen \textbf{->} jälkeen. Koodissa \ref{factorialiter} funktion parametri n ja palautusarvo ovat 64-bittisiä etumerkittömiä kokonaislukuja.
+
+Rustin \textbf{for}-silmukat ovat \textit{for--each}-tyyppisiä, jossa käydään iteraattorin kaikki alkiot läpi. Esimerkiksi koodissa \ref{factorialiter} käydään kaikki välin $[1, n+1)$ kokonaislukuarvot läpi.
+
+Rustissa ei tarvitse käyttää \textbf{return} avainsanaa, jos arvo palautetaan funktion lopussa. Tällöin ei myöskään merkata puolipistettä.
+
+\subsection{Omistajuus}
+
+Muistinhallinta on tärkeä osa ohjelmien toimintaa. Tätä varten monissa kielissä käytetään automaattista roskienkeruuta. Tämä vähentää ohjelmoijan vastuuta, mutta samalla myös vähentää mahdollisuuksia vaikuttaa muistinhallintaan. Tietyissä suorituskykykriittisissä ongelmissa automaattinen roskienkeruu saattaa tehdä epäoptimaalisia ratkaisuja. Tällaisia ongelmia esiintyy pelimoottoreissa esimerkiksi fysiikanmallinmuksessa. Tämän takia pelimoottorit toteutetaan usein kielillä joissa ei muistinhallinta on manuaalista. Manuaalisesti muistinhallitsevissa kielissä jää ohjelmoijan vastuuksi varata ja vapauttaa muisti oikeaoppisesti, josta johtuen ne ovat alttiita muistihallintavirheille. 
+
+Rust-ohjelmointikielessä ei käytetä automaattista roskienkeruuta, mutta siinä ei myöskään jätetä muistinhallintaa täysin ohjelmoijan vastuulle. Tämä on mahdollista, koska kieli takaa sen että jokaisella varatulla muistialueella on yksikäsittäinen omistaja, joka on vastuussa sen vapauttamisesta. Koska omistajuus on käännösaikainen käsite Rustissa, vastaa se manuaalista muistinhallintaa. Ohjelmointikielen tasolla muuttuja omistaa arvonsa. Kun muuttuja poistuu näkyvyysalueelta, niin sen omistama arvo vapautetaan. Muuttuja voi siirtää omistamansa arvon jollekkin muuttujalle tai funktiolle parametriksi, jolloin myös omistajuus siirtyy. Tämän jälkeen alkuperäinen muuttuja ei voi enää käyttää arvoa sillä se ei omista sitä.
+
+Koodissa \ref{ownerexample} havainnollistetaan mitä tapahtuu kun muuttujaa yritetään käyttää sen arvon siirron jälkeen. Virheviestistä nähdään selvästi missä arvon siirto ja missä virheellinen muuttujan uudelleenkäyttö tapahtuvat. Lisäksi viestissä huomautetaan $Copy$-trait toteutuksen puuttumisesta $String$-tyypille. Rustissa siirrot ovat aina muistisiirtoja pinossa. $Copy$-traitin toteuttavat tyypit takaavat, että kaikki niihin liittyvä data sijaitsee pinossa. Tämän takia niiden siirrossa tehdään ns. syväkopiointi. \textit{Syväkopiointi}(Deep copy) tarkoittaa kaiken muuttujaan liittyvän datan kopioimista. Syväkopioinnin vastakohta on \textit{pinnallinen kopiointi}. . (Shallow copy) Koska siirto on syväkopio $Copy$-traitin toteuttaville tyypeille, ei tämän tyyppisillä muuttujilla ole siirtosemantiikkaa.
+
+\subsection{Lainaaminen ja elinajat}
+
+Jos Rustissa olisi vain omistajuus, niin funktioiden pitäisi palauttaa parametrinsa, jotta niitä voitaisiin uudelleenkäyttää. Parametrien uudelleenkäyttö on kuitenkin todella yleistä. Tätä varten Rustissa on käytössä lainaamisen käsite. Sen sijaan että omistajuus siirrettäisiin, arvoa voidaan lainata. Lainauksen aikana alkuperäinen omistaja ei voi käyttää arvoa, mutta se saa sen takaisin käyttöön heti kun lainaus on loppunut. Rustissa on kaksi eri lainaustyyppiä: Muokkaamaton ja muokattava sellainen.
+
+\textit{Muokkaamatommassa lainauksessa} lainaaja ei pysty muokkaamaan lainattua arvoa, mutta koska muokkaaminen ei ole mahdollista lainauksia voi olla useita kappaleita samanaikaisesti (aliasiointi). \textit{Muokattavia lainauksia} voi sen sijaan olla vain yksi, mutta koska aliasointia ei ole niitä on mahdollista muokata. Samasta arvosta ei voi myöskään olla muokattavaa ja muokkaamatonta lainausta samanaikasesti. Tämänlainen kahtiajako välttää muistiturvallisuusongelmia kuten iteraattori invalidaatioita. Koodissa \ref{iterationexample} on esimerkki iteraattori invalidaatio tilanteesta. Virheviestistä näkee kuinka lainauksen säännöt estävät ongelman käännösaikana. Useimmissa kielissä, kuten Javassa ja C++:ssa, vastaavanlainen koodi kääntyisi ja siitä aiheutuvat ongelmat huomattaisiin vasta ajonaikana. Java heittäisi tässä tapauksessa poikkeuksen, kun taas C++:ssa se olisi muistiturvallisuusriski. Lainaaminen auttaa myös estämään kilpatilanteista johtuvia samanaikaisuusongelmia. Kilpatilanne voi tapahtua vain, jos useampi taho pääsee samanaikaisesti käsiksi arvoon ja ainakin yksi niistä muokkaa sitä. Rustin lainaamissäännöt nimenomaan eivät salli tätä.
+
+Kuten jo aiemmin mainittiin, arvot vapautetaan aina silloin kun niiden omistajat poistuvat näkyvyysalueiltansa. Vapauttamisen jälkeen kaikki arvoon liittyvät lainaukset osoittaisivat vapautettuun muistiin eli ne olisivat niin sanottuja roikkuvia viittauksia (Dangling references). Jotta tätä ei tapahtuisi, lainauksien oikeellisuutta pitää seurata jollain tavalla. Koodissa \ref{dangling} on esimerkki juuri tällaisestä virheellisestä lainauksesta.
+
+Rustissa kaikilla lainauksilla on  varten \textit{elinaika}, jonka täytyy aina olla lyhyempi kuin sen lainaaman arvon elinaika. Elinaika pystytään useimmissa tapauksissa päättelemään koodista automaattisesti. Joskus tämä ei ole kuitenkaan mahdollista, jolloin ohjelmoijan täytyy merkata se koodissa erillisellä elinaikamerkillä. Esimerkissä \ref{lifetimes} on kaksi funktiota. Ensimmäisessä ei ole elinaikamerkintää, jonka takia Rust ei tiedä kummasta lainauksesta palautusarvona oleva lainaus tulee. Elinaikamerkatussa versiossa taas elinaikamerkintä yhdistää parametrin $b$ elinajan palautusarvon elinaikaan, jolloin Rust tietää kuinka pitkää palautusarvoa voi käyttää.
+
+\section{Vertailu C-kieliin}
+
+\subsection{Kehitystyökalut}
+
+C ja C++ -ohjelmointikielet ovat Rustin tavoin käännettäviä ohjelmointikieliä, jotka soveltuvat suorituskykyä vaativien sovellusten kehittämiseen. Näihin kuuluvat muun muassa käyttöjärjestelmät, sulautetut järjestelmät ja pelimoottorit, joista esimerkiksi \textit{Unity} ja \textit{Unreal Engine} on kirjoitettu C++ -kieltä käyttäen. Rustille on saatavilla pelimoottorikirjastoja kuten Piston tai Amethyst, mutta Unityn tai Unreal Enginen kaltaisia kokonaisvaltaisia pelinkehityskokonaisuuksia ei toistaiseksi ole saatavilla Rust-kielelle.\cite{AreWeGameYetEngines}
+
+Rust-lähdekoodin kääntämiseen käytetään rustc -työkalua, joka on kirjoitettu Rust-kielellä. Kääntäjä hyödyntää LLVM-kääntäjäinfrastruktuurin työkaluja, ja hyötyy siten kyseistä projektia koskevista suorituskykyparannuksista. \cite{HowFastIsRust} C++ -kielestä poiketen Rustille ei ole kuitenkaan saatavilla vaihtoehtoisia kääntäjiä. Laajassa käytössä oleviin C++ -kielen kääntäjiin kuuluu muun muassa LLVM-projektin \textit{Clang}, \textit{GNU GCC} ja \textit{Intel C++ Compiler}.
+
+Koska Rust-kieleen ei kuulu ajonaikaista virtuaalikonetta tai muuta tulkkia, Rust-koodia on C-kielten tavoin mahdollista hyödyntää korkeamman tason kielissä kuten Pythonissa tai Rubyssa. Tässä tapauksessa sovelluksen tehokasta suorituskykyä ja muistinkäyttöä vaativat osat voidaan kirjoittaa Rustilla.\cite{RustInsideOtherLanguages} C-kielellä kirjoitettuja kirjastoja on myös mahdollista käyttää Rustilla toteuttamalla kirjastolle sidonnat, jotka käyttävät kirjaston funktioita FFI (\textit{Foreign Function Interface}) -rajapinnan kautta. C-kielellä kirjastoja ei siis tarvitse uudelleenkirjoittaa, jotta niitä voidaan hyödyntää Rust-kielessä. Tässä tapauksessa ohjelmoijan tulee luoda kirjastolle turvalliset sidonnat, jotka estävät mahdolliset virhetilanteet esimerkiksi muistinhallinnan osalta.
+
+\subsection{Käyttöjärjestelmät}
+
+C++ -kieli ja sitä edeltävä C-kieli ovat yleisiä käyttöjärjestelmien ohjelmointikielinä: \textit{Microsoft Windows} on ohjelmoitu C++ -kielellä, \textit{FreeBSD} on ohjelmoitu käyttäen sekä C++ ja C-kieliä ja \textit{Linux} käyttää C-kieltä. Rust olisi muistinhallinnan puolesta otollinen käyttöjärjestelmän ytimen ohjelmointiin, jossa muistinhallinta-virheillä voi olla vakavia seurauksia järjestelmän vakauden ja tietoturvallisuuden kannalta. \textit{Redox} on Rust-kielellä kirjoitettu mikroydin-rakennetta hyödyntävä käyttöjärjestelmä.\cite{WhatRedoxIs} Redox on vielä aikaisessa kehitysvaiheessa eikä siten sovellu jokapäiväiseen käyttöön.
+
+\textit{Tock} on Rust-kielellä toteutettu sulautettu käyttöjärjestelmä.\cite{OwnershipIsTheft} Tavallisista käyttöjärjestelmistä poiketen sulautetuissa käyttöjärjestelmissä on tiukat resurssivaatimukset. Tock on suunniteltu muun muassa toimimaan ympäristössä, jossa käytössä on vain 64 kilotavua keskusmuistia. Tämä on vaatinut lisäyksiä käyttöjärjestelmäytimeen, mikä ei muuten tukisi Rustin käyttämää muistinhallintaa. % TODO: Mitä tässä yritetään sanoa?
+
+Rust tukee virallisesti 32-bittisiä ja 64-bittisiä \textit{Microsoft Windows}, \textit{Linux} ja \textit{OS X} -käyttöjärjestelmiä.\cite{RustPlatformSupport} Muille alustoille, kuten ARM-arkkitehtuurille ja \textit{iOS} ja \textit{Android} -mobiilikäyttöjärjestelmille on rajatumpi tuki: alustoille on saatavilla valmiiksi käännetyt kirjastot ja sovellukset, mutta automatisoituja testejä ei ajeta julkaisun yhteydessä eikä niitä voi pitää siten yhtä toimintavarmoina. iOS ja Android -käyttöjärjestelmille on olemassa virallisesti tuetut C ja C++ -kieliä käyttävät kehitystyökalut. Esimerkiksi \textit{Android NDK} sallii sovellusten kehittämisen C ja C++ -kieliä käyttäen, tarjoten myös kirjastoja esimerkiksi 3D-piirtämistä, äänentoistoa ja säikeiden hallintaa varten.\cite{AndroidNDK}
+
+\section{Peliohjelmointi Rustilla}
+
+\subsection{Pelimoottorit}
+Kuten aiemmin jo mainittiin Rustissa ei ole vielä Unityn tai Unrealin tasoisia pelimoottoreita. Kuitenkin on kehitteillä kirjastoja, kuten Piston ja Amethyst. 
+
+Näistä Piston täysin modulaarinen pelimoottori eli se on käytännössä kokoelma erilaisia pelinkehityskirjastoja. Se koostuu muutamasta ydinkirjastosta ja isosta määrästä apukirjastoja. Ydinkirjastoihin kuuluvat \textit{pistoncore-input} syötteenhallintakirjasto, \textit{pistoncore-window} ikkunointikirjasto ja \textit{pistoncore-event\texttt{\_}loop} pelisilmukanhallintakirjasto. Apukirjastojen joukosta löytyy esimerkiksi \textit{vecmath}, joka on yksinkertainen vektorimatematiikkakirjasto, \textit{piston3d-cam} 3d kameran hallintakirjasto ja \textit{texture\texttt{\_}packer} tekstuurinpakkauskirjasto. Pistonin moduulaarisuudesta kertoo se että sekä sen ikkunointi- että sen 2d-grafiikkakirjastolla on useampi backend.  
+
+Amethyst\cite{Amethyst} taas on dataorientoitunut ja dataohjattu pelimoottori, joka on saanut inspiraationsa Bitsquid Enginestä (nykyisin Autodesk Stingray)\cite{AmethystReadme}. \textit{Dataorientoitunut ohjelmointi} on ohjelmointiparadigma, joka keskittyy dataan. Siinä kiinnitetään erityisesti huomiota datan tyyppiin, sen esitysmuotoon muistissa ja kuinka se prosessoidaan. \textit{Dataohjattu suunnittelumalli} tarkoittaa taas sitä, että ohjelman logiikkaa ohjautuu mahdollisimman paljon ulkoisen datan perusteella. Tällöin on mahdollista muokata ohjelman toimintaa ilman sen uudelleenkääntämistä. \cite{AmethystGlossary}
+
+Amethystin ominaisuuksiin kuuluvat yksinkertainen pelitilan hallinta pinoautomaatilla, skriptausrajapinta, gfx-rs kirjastoon pohjautuva renderöinti ja specs kirjastoon pohjautuva ECS-malli. Piston ja Amethyst noudattavat kummatkin hyvin Unixmaista lähestymistapaa: molemmat koostuvat pienistä integroiduista palasista. Amethyst muodostaa näistä kahdesta selkeämmän kokonaisuuden kun taas Piston on modulaarisempi kokonaisuus erilaisia kirjastoja.
+
+\subsection{ECS}
+Rustin omistajuuden ja lainaamisen mekanismit estävät aliasioinnin ja muokattavuuden samanaikaisuuden. Tämä vaikuttaa pelimoottorin suunnittelussa tehtäviin rakenteellisiin valintoihin. Esimerkiksi syklisten viittausten käyttö vaikeutuu huomattavasti. Tällaisia viittauksia voi esiintyä esimerkiksi maailman ja sen sisältävien olioiden välillä. Rustissa sykliset viittaukset voidaan toteuttaa älyosoitin-yhdistelmillä, mutta niiden käyttö vähentää suoritustehoa lisäämällä ajonaikaisia tarkistuksia. Lisäksi niiden käyttö siirtää osan vastuusta ylläpitää lainaamisen sääntöjä ohjelmoijalle.
+
+Vaihtoehtoinen tapa jäsennellä peli on käyttää ECS (Entity Component System) -mallia, jossa peli koostuu entiteeteistä, komponenteista ja systeemeistä.
+
+Komponentit ovat datasäiliöitä, joita käytetään moniin eri peliin liittyviin toiminnallisuuksiin. Esimerkiksi pelihahmon sijainti, nopeus, tekstuuri ja tiimi voidaan tallentaa komponentteina.
+
+Entiteetit ovat vain tunnuksia, joihin voi liittää eri komponentteja. Pelihahmot, ammukset ja partikkeligeneraattorit ovat esimerkkejä entiteeteistä. Partikkeligeneraattoriin ja pelihahmoihin liittyy todennäköisesti hyvin erilaiset komponentit. Esimerkiksi partikkeligeneraattori ei tarvitse välttämättä tiimikomponenttia mutta se voi tarvita komponentteja partikkelien käyttäytymiseen liittyen, joita pelihahmot eivät tarvitse.
+
+Systeemit prosessoivat entiteettejä lukemalla tai muokkaamalla niihin liittyviä komponentteja. Ne prosessoivat vain entiteettejä, joilta löytyy kaikki kyseisen systeemin tarvitsemat komponentit. Esimerkiksi yksinkertainen fysiikkasysteemi voisi vaatia entiteeteiltä sijainti-, nopeus- ja kiihtyvyyskomponentit toimintaansa varten. Renderöintisysteemi voisi taas vaatia sijainti-, tekstuuri-, malli- ja sävytinkomponentit.
+
+ECS-lähestymistapa on tehokas, koska eri komponentit voidaan tallentaa omiin yhtenäisiin tietorakenteisiinsa. Tämä on järkevää välimuistitehokkuuden kannalta, sillä systeemit prosessoivat peräkkäin suuren määrän samantyyppisiä komponentteja. ECS tekee myös selvän jaon datan ja toiminnallisuuden välillä, joka lisää pelimoottorin modulaarisuutta.
+
+Rustissa on useita ECS-kirjastoja, joista yksi suosituimpia on \textit{specs} (Specs Parallel ECS)\cite{AreWeGameYetEcs}. Specsiä käytetään esimerkiksi aiemmin mainitussa Amethyst-pelimoottorissa. 
+
+Specs pystyy ajamaan systeemejä samanaikaisesti, jos niiden lukemis- ja muokkausvaatimukset komponentttisäiliöille eivät ole päällekkäisiä. Siinä systeemeille voidaan asettaa riippuvuussuhteita, jotka vaikuttavat niiden ajamisjärjestykseen. Lisäksi Specsissä pystyy samanaikaistamaan komponenttiyhdistelmien läpikäyntiä Systeemeiden sisällä.
+
+Specissä eri komponenteille voidaan valita erilaisia säiliöitä niiden käyttötarkoituksen mukaan. $VecStorage$ käyttää sisäisesti yksinkertaista dynaamisesti kasvavaa taulukkoa, joka on muistitehokas kun komponentti löytyy lähes kaikilta entiteeteiltä. 
+
+Jos komponentti ei löydy tarpeeksi monelta entiteetiltä, $VecStorage$:n sisäiseen taulukkoon jää suuria aukkoja, koska siinä entiteettien tunnukset ovat suoraan taulukon indeksejä. $DenseVecStorage$ korjaa tämän ongelman käyttämällä uudelleenohjaustaulukkomenetelmää. Siinä on datataulukon lisäksi kaksi aputaulukkoa, joiden avulla varsinainen data pystytään tallentamaan tiiviisti.
+
+$HashMapStorage$:ssa komponentit tallennetaan hajautustauluun niin, että entiteetti toimii avaimena, ja komponentti arvona. Sen iteroiminen on hitaampaa, mutta se on muistitehokkaampi, jos komponentti liittyy vain pieneen määrään entiteeteistä.  
+
+Komponentti, joka ei sisällä varsinaista dataa vaan toimii vain tunnistimena, kannattaa säilöä $NullStorage$:ssa. Esimerkiksi jonkun tietyn vihollistyypin tekoälysysteemi voi tunnistaa kaikki oikeantyyppiset entiteetit tämänlaisen komponentin avulla. 
+
+\subsection{Grafiikka}
+% Sidonta
+
+% Gfx, vulkano
+Rustille on tehty suoria sidoksia yleisimmille grafiikkarajapinnoille, kuten OpenGL:lle ja Vulkanille. Rustille on myös olemassa grafiikkakirjastoja jotka käyttävät näitä suoria sidoksia ytimessään, mutta tarjoavat käyttäjälle rustmaisemman rajapinnan. Tällaisia kirjastoja ovat esimerkiksi gfx-rs ja glium.
+
+\textit{Gfx-rs} on abstrahoitu grafiikkakirjasto, joka noudattaa frontend-backend kahtiajakoa. Gfx-kirjaston frontend-osio on Vulkanin kaltainen, mutta sitä abstraktimpi grafiikkarajapinta. Sille on toteutettu backendit Vulkanille, Direct3D 12:lle Metalille ja OpenGL 2.1+/ES2:lle. Gfx on yksi suosituimpia grafiikkakirjastoja ja sitä tukevat esimerkiksi aiemmin mainitut Piston ja Amethyst -pelimoottorit.
+
+\textit{Glium} on turvallinen sidoskirjasto OpenGL:lle. Se pyrkii piilottamaan OpenGL:n tilakonemaisen rajapinnan ja tarjoamaan rustmaisemman ja tilattoman rajapinnan sen tilalle. Se pyrkii esimerkiksi välttämään OpenGL:n virhetilanteita käännösaikaisesti. Vaikka Gliumin alkuperäinen kehittäjä on siirtynyt kehittämään Vulkano-kirjastoa, sen yhteisö ylläpitää sitä edelleen.
+
+
+
+
+% muita pelejä
+
+% 
+
+
+
+% --- References ---
+%
+% bibtex is used to generate the bibliography. The babplain style
+% will generate numeric references (e.g. [1]) appropriate for theoretical
+% computer science. If you need alphanumeric references (e.g [Tur90]), use
+%
+% \bibliographystyle{babalpha-lf}
+%
+% instead.
+
+\bibliographystyle{apacite}
+\bibliography{references-fi}
+
+
+% --- Appendices ---
+
+% uncomment the following
+
+\newpage
+\appendix
+
+\section{Koodiesimerkit}
+
 \begin{caplab}{helloworld}{Tulostaa "Hei maailma"}
 \begin{code}{rust}
 fn main() {
@@ -188,8 +313,6 @@ Hei maailma
 %$
 \end{caplab}
 
-
-Ohjelmointikieleen tutustuessa on tapana kirjoittaa klassinen ``Hei maailma`` -ohjelma joka tulostaa kyseisen lauseen. Koodi \ref{helloworld} on kyseisen ohjelman Rust toteutus. Kyseinen toteutus ei poikkea juurikaan muiden proseduraalisten kielien toteutuksista. Suurin ero muiden kielien toteutuksiin on se että tulostuskomento on makro. Tulostuskomento on toteutettu makrolla tekstin muotoilun helpottamiseksi. Koodissa \ref{helloworld2} on esimerkki tästä.
 \begin{caplab}{helloworld2}{Tulostaa satunnaisluvun}
 \begin{code}{rust}
 fn main() {
@@ -198,8 +321,6 @@ fn main() {
 }
 \end{code}
 \end{caplab}
-
-Rustissa muuttujat määritellään käyttäen \textbf{let} avainsanaa ja muuttujan tyyppi erotellaan kaksoipistellä. Koodissa \ref{helloworld2} muuttuja nimeltä $s\_luku$ on 32-bittinen etumerkillinen kokonaisluku. Muuttujat oletusarvoisesti eivät ole muokattavissa. Muokattavat muuttujat määritellään käyttäen avainsanayhdistelmää \textbf{let mut}. 
 
 \begin{caplab}{factorialiter}{Funktio joka laskee $n!$ iteratiivisesti.}
 \begin{code}{rust}
@@ -213,12 +334,6 @@ fn factorial(n: u64) -> u64 {
 \end{code}
 \end{caplab}
 
-Useimmissa tapauksissa muuttujan tyypin voi jättää merkkaamatta, koska Rust osaa päätellä sen käännösaikana. Kuitenkin funktioiden parametrien ja palautusarvon tyypit täytyy merkata, koska Rustissa ei ole ohjelmanlaajuista tyyppipäättelyä. Funktion palautusarvon tyyppi määritellään nuolen \textbf{->} jälkeen. Koodissa \ref{factorialiter} funktion parametri n ja palautusarvo ovat 64-bittisiä etumerkittömiä kokonaislukuja.
-
-Rustin \textbf{for}-silmukat ovat \textit{for--each}-tyyppisiä, jossa käydään iteraattorin kaikki alkiot läpi. Esimerkiksi koodissa \ref{factorialiter} käydään kaikki välin $[1, n+1)$ kokonaislukuarvot läpi.
-
-Rustissa ei tarvitse käyttää \textbf{return} avainsanaa, jos arvo palautetaan funktion lopussa. Tällöin ei myöskään merkata puolipistettä.
-
 \begin{caplab}{factorialrec}{Funktio joka laskee $n!$ rekursiivisesti.}
 \begin{code}{rust}
 fn factorial(n: u64) -> u64 {
@@ -230,14 +345,6 @@ fn factorial(n: u64) -> u64 {
 }
 \end{code}
 \end{caplab}
-
-\subsection{Omistajuus}
-
-Muistinhallinta on tärkeä osa ohjelmien toimintaa. Tätä varten monissa kielissä käytetään automaattista roskienkeruuta. Tämä vähentää ohjelmoijan vastuuta, mutta samalla myös vähentää mahdollisuuksia vaikuttaa muistinhallintaan. Tietyissä suorituskykykriittisissä ongelmissa automaattinen roskienkeruu saattaa tehdä epäoptimaalisia ratkaisuja. Tällaisia ongelmia esiintyy pelimoottoreissa esimerkiksi fysiikanmallinmuksessa. Tämän takia pelimoottorit toteutetaan usein kielillä joissa ei muistinhallinta on manuaalista. Manuaalisesti muistinhallitsevissa kielissä jää ohjelmoijan vastuuksi varata ja vapauttaa muisti oikeaoppisesti, josta johtuen ne ovat alttiita muistihallintavirheille. 
-
-Rust-ohjelmointikielessä ei käytetä automaattista roskienkeruuta, mutta siinä ei myöskään jätetä muistinhallintaa täysin ohjelmoijan vastuulle. Tämä on mahdollista, koska kieli takaa sen että jokaisella varatulla muistialueella on yksikäsittäinen omistaja, joka on vastuussa sen vapauttamisesta. Koska omistajuus on käännösaikainen käsite Rustissa, vastaa se manuaalista muistinhallintaa. Ohjelmointikielen tasolla muuttuja omistaa arvonsa. Kun muuttuja poistuu näkyvyysalueelta, niin sen omistama arvo vapautetaan. Muuttuja voi siirtää omistamansa arvon jollekkin muuttujalle tai funktiolle parametriksi, jolloin myös omistajuus siirtyy. Tämän jälkeen alkuperäinen muuttuja ei voi enää käyttää arvoa sillä se ei omista sitä.
-
-Koodissa \ref{ownerexample} havainnollistetaan mitä tapahtuu kun muuttujaa yritetään käyttää sen arvon siirron jälkeen. Virheviestistä nähdään selvästi missä arvon siirto ja missä virheellinen muuttujan uudelleenkäyttö tapahtuvat. Lisäksi viestissä huomautetaan $Copy$-trait toteutuksen puuttumisesta $String$-tyypille. Rustissa siirrot ovat aina muistisiirtoja pinossa. $Copy$-traitin toteuttavat tyypit takaavat, että kaikki niihin liittyvä data sijaitsee pinossa. Tämän takia niiden siirrossa tehdään ns. syväkopiointi. \textit{Syväkopiointi}(Deep copy) tarkoittaa kaiken muuttujaan liittyvän datan kopioimista. Syväkopioinnin vastakohta on \textit{pinnallinen kopiointi}. . (Shallow copy) Koska siirto on syväkopio $Copy$-traitin toteuttaville tyypeille, ei tämän tyyppisillä muuttujilla ole siirtosemantiikkaa.
 
 \begin{caplab}{ownerexample}{Muuttujan käyttö omistajuuden siirron jälkeen.}
 \begin{code}{rust}
@@ -266,13 +373,7 @@ error[E0382]: use of moved value: 'string'
   the 'Copy' trait
 \end{code}
 %$
-\end{caplab} 
-
-\subsection{Lainaaminen ja elinajat}
-
-Jos Rustissa olisi vain omistajuus, niin funktioiden pitäisi palauttaa parametrinsa, jotta niitä voitaisiin uudelleenkäyttää. Parametrien uudelleenkäyttö on kuitenkin todella yleistä. Tätä varten Rustissa on käytössä lainaamisen käsite. Sen sijaan että omistajuus siirrettäisiin, arvoa voidaan lainata. Lainauksen aikana alkuperäinen omistaja ei voi käyttää arvoa, mutta se saa sen takaisin käyttöön heti kun lainaus on loppunut. Rustissa on kaksi eri lainaustyyppiä: Muokkaamaton ja muokattava sellainen.
-
-\textit{Muokkaamatommassa lainauksessa} lainaaja ei pysty muokkaamaan lainattua arvoa, mutta koska muokkaaminen ei ole mahdollista lainauksia voi olla useita kappaleita samanaikaisesti (aliasointi). \textit{Muokattavia lainauksia} voi sen sijaan olla vain yksi, mutta koska aliasointia ei ole niitä on mahdollista muokata. Samasta arvosta ei voi myöskään olla muokattavaa ja muokkaamatonta lainausta samanaikasesti. Tämänlainen kahtiajako välttää muistiturvallisuusongelmia kuten iteraattori invalidaatioita. Koodissa \ref{iterationexample} on esimerkki iteraattori invalidaatio tilanteesta. Virheviestistä näkee kuinka lainauksen säännöt estävät ongelman käännösaikana. Useimmissa kielissä, kuten Javassa ja C++:ssa, vastaavanlainen koodi kääntyisi ja siitä aiheutuvat ongelmat huomattaisiin vasta ajonaikana. Java heittäisi tässä tapauksessa poikkeuksen, kun taas C++:ssa se olisi muistiturvallisuusriski. Lainaaminen auttaa myös estämään kilpatilanteista johtuvia samanaikaisuusongelmia. Kilpatilanne voi tapahtua vain, jos useampi taho pääsee samanaikaisesti käsiksi arvoon ja ainakin yksi niistä muokkaa sitä. Rustin lainaamissäännöt nimenomaan eivät salli tätä.
+\end{caplab}
 
 \begin{caplab}{iterationexample}{Iteraatio invalidaatio}
 \begin{code}{rust}
@@ -299,8 +400,6 @@ is also borrowed as immutable
 \end{code}
 %$
 \end{caplab}
-
-Kuten jo aiemmin mainittiin, arvot vapautetaan aina silloin kun niiden omistajat poistuvat näkyvyysalueiltansa. Vapauttamisen jälkeen kaikki arvoon liittyvät lainaukset osoittaisivat vapautettuun muistiin eli ne olisivat niin sanottuja roikkuvia viittauksia (Dangling references). Jotta tätä ei tapahtuisi, lainauksien oikeellisuutta pitää seurata jollain tavalla. Koodissa \ref{dangling} on esimerkki juuri tällaisestä virheellisestä lainauksesta.
 
 \begin{caplab}{dangling}{Roikkuva viittaus}
 \begin{code}{rust}
@@ -332,8 +431,6 @@ defined on the function body at 1:1...
 %$
 \end{caplab}
 
-Rustissa kaikilla lainauksilla on  varten \textit{elinaika}, jonka täytyy aina olla lyhyempi kuin sen lainaaman arvon elinaika. Elinaika pystytään useimmissa tapauksissa päättelemään koodista automaattisesti. Joskus tämä ei ole kuitenkaan mahdollista, jolloin ohjelmoijan täytyy merkata se koodissa erillisellä elinaikamerkillä. Esimerkissä \ref{lifetimes} on kaksi funktiota. Ensimmäisessä ei ole elinaikamerkintää, jonka takia Rust ei tiedä kummasta lainauksesta palautusarvona oleva lainaus tulee. Elinaikamerkatussa versiossa taas elinaikamerkintä yhdistää parametrin $b$ elinajan palautusarvon elinaikaan, jolloin Rust tietää kuinka pitkää palautusarvoa voi käyttää.
-
 \begin{caplab}{lifetimes}{Elinaikamerkinnän tarpeellisuus}
 \begin{code}{rust}
 fn ei_toimi(a: &String, b: &String) -> &String {
@@ -362,104 +459,5 @@ error[E0106]: missing lifetime specifier
 \end{code}
 %$
 \end{caplab}
-
-%TODO poista tämä kappale kun uudelleenkirjoitus on valmis.
-Rust-kielen muistinhallintaan kuuluu omistajuuden lisäksi kaksi merkittävää alakäsitettä: lainaaminen ja elinaika. Lainaaminen tarkoittaa muuttujan viittauksen antamista väliaikaisesti johonkin toiseen skooppiin; esimerkiksi toiseen metodiin. Useimmista kielistä poiketen Rust kuitenkin määrittää invariantin, joka tarkastetaan käännösvaiheessa: muuttujalla voi olla joko useita muuttumattomia (vain-luku) viittauksia, yksi muuttava (luku ja kirjoitus) viittaus, mutta ei kummankin tyyppistä viittausta samanaikaisesti. Tällä estetään virhetilanteet, jossa yksi tai useampi taho lukee muuttujaa samaan aikaan kun sitä muutetaan. Kielen standardikirjastossa on saatavilla erilaisia synkronointialkioita, jotka sallivat esimerkiksi ``yksi kirjoittaja, usea lukija`` -malliset tilanteet.
-
-\section{Vertailu C-kieliin}
-
-\subsection{Kehitystyökalut}
-
-C ja C++ -ohjelmointikielet ovat Rustin tavoin käännettäviä ohjelmointikieliä, jotka soveltuvat suorituskykyä vaativien sovellusten kehittämiseen. Näihin kuuluvat muun muassa käyttöjärjestelmät, sulautetut järjestelmät ja pelimoottorit, joista esimerkiksi \textit{Unity} ja \textit{Unreal Engine} on kirjoitettu C++ -kieltä käyttäen. Rustille on saatavilla pelimoottorikirjastoja kuten Piston tai Amethyst, mutta Unityn tai Unreal Enginen kaltaisia kokonaisvaltaisia pelinkehityskokonaisuuksia ei toistaiseksi ole saatavilla Rust-kielelle.\cite{AreWeGameYetEngines}
-
-Rust-lähdekoodin kääntämiseen käytetään rustc -työkalua, joka on kirjoitettu Rust-kielellä. Kääntäjä hyödyntää LLVM-kääntäjäinfrastruktuurin työkaluja, ja hyötyy siten kyseistä projektia koskevista suorituskykyparannuksista. \cite{HowFastIsRust} C++ -kielestä poiketen Rustille ei ole kuitenkaan saatavilla vaihtoehtoisia kääntäjiä. Laajassa käytössä oleviin C++ -kielen kääntäjiin kuuluu muun muassa LLVM-projektin \textit{Clang}, \textit{GNU GCC} ja \textit{Intel C++ Compiler}.
-
-Koska Rust-kieleen ei kuulu ajonaikaista virtuaalikonetta tai muuta tulkkia, Rust-koodia on C-kielten tavoin mahdollista hyödyntää korkeamman tason kielissä kuten Pythonissa tai Rubyssa. Tässä tapauksessa sovelluksen tehokasta suorituskykyä ja muistinkäyttöä vaativat osat voidaan kirjoittaa Rustilla.\cite{RustInsideOtherLanguages} C-kielellä kirjoitettuja kirjastoja on myös mahdollista käyttää Rustilla toteuttamalla kirjastolle sidonnat, jotka käyttävät kirjaston funktioita FFI (\textit{Foreign Function Interface}) -rajapinnan kautta. C-kielellä kirjastoja ei siis tarvitse uudelleenkirjoittaa, jotta niitä voidaan hyödyntää Rust-kielessä. Tässä tapauksessa ohjelmoijan tulee luoda kirjastolle turvalliset sidonnat, jotka estävät mahdolliset virhetilanteet esimerkiksi muistinhallinnan osalta.
-
-\subsection{Käyttöjärjestelmät}
-
-C++ -kieli ja sitä edeltävä C-kieli ovat yleisiä käyttöjärjestelmien ohjelmointikielinä: \textit{Microsoft Windows} on ohjelmoitu C++ -kielellä, \textit{FreeBSD} on ohjelmoitu käyttäen sekä C++ ja C-kieliä ja \textit{Linux} käyttää C-kieltä. Rust olisi muistinhallinnan puolesta otollinen käyttöjärjestelmän ytimen ohjelmointiin, jossa muistinhallinta-virheillä voi olla vakavia seurauksia järjestelmän vakauden ja tietoturvallisuuden kannalta. \textit{Redox} on Rust-kielellä kirjoitettu mikroydin-rakennetta hyödyntävä käyttöjärjestelmä.\cite{WhatRedoxIs} Redox on vielä aikaisessa kehitysvaiheessa eikä siten sovellu jokapäiväiseen käyttöön.
-
-\textit{Tock} on Rust-kielellä toteutettu sulautettu käyttöjärjestelmä.\cite{OwnershipIsTheft} Tavallisista käyttöjärjestelmistä poiketen sulautetuissa käyttöjärjestelmissä on tiukat resurssivaatimukset. Tock on suunniteltu muun muassa toimimaan ympäristössä, jossa käytössä on vain 64 kilotavua keskusmuistia. Tämä on vaatinut lisäyksiä käyttöjärjestelmäytimeen, mikä ei muuten tukisi Rustin käyttämää muistinhallintaa. % TODO: Mitä tässä yritetään sanoa?
-
-Rust tukee virallisesti 32-bittisiä ja 64-bittisiä \textit{Microsoft Windows}, \textit{Linux} ja \textit{OS X} -käyttöjärjestelmiä.\cite{RustPlatformSupport} Muille alustoille, kuten ARM-arkkitehtuurille ja \textit{iOS} ja \textit{Android} -mobiilikäyttöjärjestelmille on rajatumpi tuki: alustoille on saatavilla valmiiksi käännetyt kirjastot ja sovellukset, mutta automatisoituja testejä ei ajeta julkaisun yhteydessä eikä niitä voi pitää siten yhtä toimintavarmoina. iOS ja Android -käyttöjärjestelmille on olemassa virallisesti tuetut C ja C++ -kieliä käyttävät kehitystyökalut. Esimerkiksi \textit{Android NDK} sallii sovellusten kehittämisen C ja C++ -kieliä käyttäen, tarjoten myös kirjastoja esimerkiksi 3D-piirtämistä, äänentoistoa ja säikeiden hallintaa varten.\cite{AndroidNDK}
-
-\section{Peliohjelmointi Rustilla}
-
-\subsection{Pelimoottorit}
-Kuten aiemmin jo mainittiin Rustissa ei ole vielä Unityn tai Unrealin tasoisia pelimoottoreita. Kuitenkin on kehitteillä kirjastoja, kuten Piston ja Amethyst. 
-
-Näistä Piston täysin modulaarinen pelimoottori eli se on käytännössä kokoelma erilaisia pelinkehityskirjastoja. Se koostuu muutamasta ydinkirjastosta ja isosta määrästä apukirjastoja. Ydinkirjastoihin kuuluvat \textit{pistoncore-input} syötteenhallintakirjasto, \textit{pistoncore-window} ikkunointikirjasto ja \textit{pistoncore-event\texttt{\_}loop} pelisilmukanhallintakirjasto. Apukirjastojen joukosta löytyy esimerkiksi \textit{vecmath}, joka on yksinkertainen vektorimatematiikkakirjasto, \textit{piston3d-cam} 3d kameran hallintakirjasto ja \textit{texture\texttt{\_}packer} tekstuurinpakkauskirjasto. Pistonin moduulaarisuudesta kertoo se että sekä sen ikkunointi- että sen 2d-grafiikkakirjastolla on useampi backend.  
-
-Amethyst\cite{Amethyst} taas on dataorientoitunut ja dataohjattu pelimoottori, joka on saanut inspiraationsa Bitsquid Enginestä (nykyisin Autodesk Stingray)\cite{AmethystReadme}. \textit{Dataorientoitunut ohjelmointi} on ohjemointiparadigma, joka keskittyy dataan. Siinä kiinnitetään erityisesti huomiota datan tyyppiin, sen esitysmuotoon muistissa ja kuinka se prosessoidaan. \textit{Dataohjattu suunnittelumalli} tarkoittaa taas sitä että ohjelman logiikkaa ohjautuu mahdollisimman paljon ulkoisen datan perusteella. Tällöin on mahdollista muokata ohjelman toimintaa ilman sen uudelleenkääntämistä. \cite{AmethystGlossary}
-
-Amethystin ominaisuuksiin kuuluvat yksinkertainen pelitilan hallinta pinoautomaatilla, skriptausrajapinta, gfx-rs kirjastoon pohjautuva renderöinti ja specs kirjastoon pohjautuva ECS-malli. Piston ja Amethyst noudattavat kummatkin hyvin Unixmaista lähestymistapaa: molemmat koostuvat pienistä integroiduista palasista. Amethyst muodostaa näistä kahdesta selkeämmän kokonaisuuden kun taas piston on modulaarisempi kokonaisuus erilaisia kirjastoja.
-
-\subsection{ECS}
-Rustin omistajuuden ja lainaamisen mekanismit estävät aliasoinnin ja muokattavuuden samanaikaisuuden. Tämä vaikuttaa pelimoottorin suunnittelussa tehtäviin rakententeellisiin valintoihin. Esimerkiksi syklisten viittausten käyttö vaikeutuu huomattavasti. Tällaisia viittauksia voi esiintyä esimerkiksi maailman ja sen sisältävien olioiden välillä. Rustissa sykliset viittaukset voidaan toteuttaa älyosoitin yhdistelmillä, mutta niiden käyttö vähentää suoritustehoa lisäämällä ajonaikaisia tarkistuksia. Lisäksi niiden käyttö siirtää osan vastuusta ylläpitää lainaamisen sääntöjä ohjelmoijalle.
-
-Vaihtoehtoinen tapa strukturoida peli on käyttää ECS (Entity Component System) -mallia, jossa peli koostuu entiteetteistä, komponenteista ja systeemeistä.
-
-Komponentit ovat datasäiliöitä, joita käytetään moniin eri peliin liittyviin toiminnalisuuksiin. Esimerkiksi pelihahmon sijainti, nopeus, tekstuuri ja tiimi voidaan tallentaa komponentteina.
-
-Entiteetit ovat vain tunnuksia, joihin voi liittää eri komponentteja. Pelihahmot, ammukset ja partikkeligeneraattorit ovat esimerkkejä entiteetteistä. Partikkeligeneraattoriin ja pelihahmoihin liittyy todennäköisesti hyvin erilaiset komponentit. Esimerkiksi partikkeligeneraattori ei tarvitse välttämättä tiimikomponenttia mutta se voi tarvita komponenttejä partikkelien käyttäytymiseen liittyen, joita pelihahmot eivät tarvitse.
-
-Systeemit prossesoivat entiteettejä lukemalla tai muokkaamalla niihin liittyviä komponentteja. Ne prosessoivat vain entiteettejä, joilta löytyy kaikki kyseisen systeemin tarvitsemat komponentit. Esimerkiksi yksinkertainen fysiikkasysteemi voisi vaatia entiteeteiltä sijainti-, nopeus- ja kiihtyvyyskomponentit toimintaansa varten. Renderöintisysteemi voisi taas vaatia sijainti-, tekstuuri-, malli- ja sävytinkomponentit.
-
-ECS lähestymistapa on tehokas, koska eri komponentit voidaan tallentaa omiin yhtenäisiin tietorakenteisiinsa. Tämä on järkevää välimuistitehokkuuden kannalta, sillä systeemit prosessoivat peräkkäin suuren määrän samantyyppisiä komponentteja. ECS tekee myös selvän jaon datan ja toiminnallisuuden välillä, joka lisää pelimoottorin modulaarisuutta.
-
-Rustissa on useita ECS-kirjastoja, joista yksi suosituimpia on \textit{specs} (Specs Parallel ECS)\cite{AreWeGameYetEcs}. Specsiä käytetään esimerkiksi aiemmin mainitussa Amethyst pelimoottorissa. 
-
-Specs pystyy ajamaan systeemejä samanaikaisesti, jos niiden lukemis- ja muokkausvaatimukset komponentttisäiliöille eivät ole päällekkäisiä. Siinä systeemeille voidaan asettaa riippuvuussuhteita, jotka vaikuttavat niiden ajamisjärjestykseen. Lisäksi Specsissä pystyy samanaikaistamaan komponenttiyhdistelmien läpikäyntiä Systeemeiden sisällä.
-
-Specissä eri komponenteille voidaan valita erilaisia säiliöitä niiden käyttötarkoituksen mukaan. $VecStorage$ käyttää sisäisesti yksinkertaista dynaamisesti kasvavaa taulukkoa, joka on muistitehokas kun komponentti löytyy lähes kaikilta entiteeteiltä. 
-
-Jos komponentti ei löydy tarpeeksi monelta entiteetiltä, $VecStorage$:n sisäiseen taulukkoon jää suuria aukkoja, koska siinä entiteettien tunnukset ovat suoraan taulukon indeksejä. $DenseVecStorage$ korjaa tämän ongelman käyttämällä uudelleenohjaustaulukkomenetelmää. Siinä on datataulukon lisäksi kaksi aputaulukkoa, joiden avulla varsinainen data pystytään tallentamaan tiiviisti.
-
-$HashMapStorage$:ssa komponentit tallennetaan hajautustauluun niin että entiteetti toimii avaimena ja komponentti arvona. Sen iteroiminen on hitaampaa, mutta se on muistitehokkaampi, jos komponentti liittyy vain pieneen määrään entiteeteistä.  
-
-Komponentti, joka ei sisällä varsinaista dataa vaan toimii vain merkkaimena, kannattaa säilöä $NullStorage$:ssa. Esimerkiksi jonkun tietyn vihollistyypin tekoälysysteemi voi tunnistaa kaikki oikeantyyppiset entiteetit tämänlaisen komponentin avulla. 
-
-\subsection{Grafiikka}
-% Sidonta
-
-% Gfx, vulkano
-Rustille on tehty suoria sidoksia yleisimmille grafiikkarajapinnoille, kuten OpenGL:lle ja Vulkanille. Rustille on myös olemassa grafiikkakirjastoja jotka käyttävät näitä suoria sidoksia ytimessään, mutta tarjoavat käyttäjälle rustmaisemman rajapinnan. Tällaisia kirjastoja ovat esimerkiksi gfx-rs ja glium.
-
-\textit{Gfx-rs} on abstrahoitu grafiikka kirjasto, joka frontend - backend kahtiajakoa. Gfx kirjaston frontend osio on vulkanin kaltainen, mutta abstraktimpi grafiikkarajapinta. Sille on toteutettu backendit Vulkanille, Direct3D 12:lle Metalille ja OpenGL 2.1+/ES2:lle. Gfx on yksi suosituimpia grafiikkakirjastoja ja sitä tukevat esimerkiksi aiemmin mainitut Piston- ja Amethyst pelimoottorit.
-
-\textit{Glium} on turvallinen sidoskirjasto OpenGl:lle. Se pyrkii piilottamaan OpenGL:n tilakonemaisen rajapinnan ja tarjoamaan rustmaisemman ja tilattoman rajapinnan sen tilalle. Se pyrkii esimerkiksi välttämään OpenGL:n virhetilanteita käännösaikaisesti. Vaikka Gliumin alkuperäinen kehittäjä on siirtynyt kehittämään Vulkano kirjastoa, sen yhteisö ylläpitää sitä edelleen.
-
-
-
-
-% muita pelejä
-
-% 
-
-
-
-% --- References ---
-%
-% bibtex is used to generate the bibliography. The babplain style
-% will generate numeric references (e.g. [1]) appropriate for theoretical
-% computer science. If you need alphanumeric references (e.g [Tur90]), use
-%
-% \bibliographystyle{babalpha-lf}
-%
-% instead.
-
-\bibliographystyle{apacite}
-\bibliography{references-fi}
-
-
-% --- Appendices ---
-
-% uncomment the following
-
-% \newpage
-% \appendix
-% 
-% \section{Esimerkkiliite}
 
 \end{document}
