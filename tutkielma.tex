@@ -274,7 +274,15 @@ Jos Rustissa olisi vain omistajuus, niin funktioiden pitäisi palauttaa parametr
 
 \textit{Muokkaamatommassa lainauksessa} lainaaja ei pysty muokkaamaan lainattua arvoa, mutta koska muokkaaminen ei ole mahdollista lainauksia voi olla useita kappaleita samanaikaisesti (aliasointi). \textit{Muokattavia lainauksia} voi sen sijaan olla vain yksi, mutta koska aliasointia ei ole niitä on mahdollista muokata. Samasta arvosta ei voi myöskään olla muokattavaa ja muokkaamatonta lainausta samanaikasesti. Tämänlainen kahtiajako välttää muistiturvallisuusongelmia kuten iteraattori invalidaatioita. 
 
+\begin{code}{rust}
 
+\end{code}
+\begin{code}{bash}
+$ cargo run
+
+\end{code}
+%$
+\end{caplab} 
 
 %TODO poista tämä kappale kun uudelleenkirjoitus on valmis.
 Rust-kielen muistinhallintaan kuuluu omistajuuden lisäksi kaksi merkittävää alakäsitettä: lainaaminen ja elinaika. Lainaaminen tarkoittaa muuttujan viittauksen antamista väliaikaisesti johonkin toiseen skooppiin; esimerkiksi toiseen metodiin. Useimmista kielistä poiketen Rust kuitenkin määrittää invariantin, joka tarkastetaan käännösvaiheessa: muuttujalla voi olla joko useita muuttumattomia (vain-luku) viittauksia, yksi muuttava (luku ja kirjoitus) viittaus, mutta ei kummankin tyyppistä viittausta samanaikaisesti. Tällä estetään virhetilanteet, jossa yksi tai useampi taho lukee muuttujaa samaan aikaan kun sitä muutetaan. Kielen standardikirjastossa on saatavilla erilaisia synkronointialkioita, jotka sallivat esimerkiksi ``yksi kirjoittaja, usea lukija`` -malliset tilanteet.
