@@ -304,11 +304,26 @@ Kuten jo aiemmin mainittiin, arvot vapautetaan aina silloin kun niiden omistajat
 
 \begin{caplab}{lifetimes}{}
 \begin{code}{rust}
+fn ei_toimi(a: &String, b: &String) -> &String {
+    println!("{}", a);
+    b
+}
 
+fn toimii<'b>(a: &String, b: &'b String) -> &'b String {
+    println!("{}", a);
+    b
+}
 \end{code}
 \begin{code}{bash}
 $ cargo run
-
+error[E0106]: missing lifetime specifier
+ --> src/main.rs:1:40
+  |
+1 | fn ei_toimi(a: &String, b: &String) -> &String {
+  |                                        ^ expected lifetime parameter
+  |
+  = help: this function's return type contains a borrowed value, 
+  but the signature does not say whether it is borrowed from `a` or `b`
 \end{code}
 %$
 \end{caplab}
