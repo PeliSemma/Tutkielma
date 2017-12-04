@@ -300,7 +300,7 @@ is also borrowed as immutable
 %$
 \end{caplab}
 
-Kuten jo aiemmin mainittiin, arvot vapautetaan aina silloin kun niiden omistajat poistuvat näkyvyysalueiltansa. Vapauttamisen jälkeen kaikki arvoon liittyvät lainaukset osoittaisivat vapautettuun muistiin eli ne olisivat niin sanottuja roikkuvia viittauksia (Dangling references).
+Kuten jo aiemmin mainittiin, arvot vapautetaan aina silloin kun niiden omistajat poistuvat näkyvyysalueiltansa. Vapauttamisen jälkeen kaikki arvoon liittyvät lainaukset osoittaisivat vapautettuun muistiin eli ne olisivat niin sanottuja roikkuvia viittauksia (Dangling references). Jotta tätä ei tapahtuisi, lainauksien oikeellisuutta pitää seurata jollain tavalla. Koodissa \ref{dangling} on esimerkki juuri tällaisestä virheellisestä lainauksesta.
 
 \begin{caplab}{dangling}{Roikkuva viittaus}
 \begin{code}{rust}
@@ -332,7 +332,7 @@ defined on the function body at 1:1...
 %$
 \end{caplab}
 
-Jotta tätä ei tapahtuisi, lainauksien oikeellisuutta pitää seurata jollain tavalla. Rustissa kaikilla lainauksilla on tätä varten \textit{elinaika}, jonka täytyy aina olla lyhyempi kuin sen lainaaman arvon elinaika. Elinaika pystytään useimmissa tapauksissa päättelemään koodista automaattisesti. Joskus tämä ei ole kuitenkaan mahdollista, jolloin ohjelmoijan täytyy merkata se koodissa erillisellä elinaikamerkillä. Esimerkissä \ref{lifetimes} on kaksi funktiota. Ensimmäisessä ei ole elinaikamerkintää, jonka takia Rust ei tiedä kummasta lainauksesta palautusarvona oleva lainaus tulee. Elinaikamerkatussa versiossa taas elinaikamerkintä yhdistää parametrin $b$ elinajan palautusarvon elinaikaan, jolloin Rust tietää kuinka pitkää palautusarvoa voi käyttää.
+Rustissa kaikilla lainauksilla on  varten \textit{elinaika}, jonka täytyy aina olla lyhyempi kuin sen lainaaman arvon elinaika. Elinaika pystytään useimmissa tapauksissa päättelemään koodista automaattisesti. Joskus tämä ei ole kuitenkaan mahdollista, jolloin ohjelmoijan täytyy merkata se koodissa erillisellä elinaikamerkillä. Esimerkissä \ref{lifetimes} on kaksi funktiota. Ensimmäisessä ei ole elinaikamerkintää, jonka takia Rust ei tiedä kummasta lainauksesta palautusarvona oleva lainaus tulee. Elinaikamerkatussa versiossa taas elinaikamerkintä yhdistää parametrin $b$ elinajan palautusarvon elinaikaan, jolloin Rust tietää kuinka pitkää palautusarvoa voi käyttää.
 
 \begin{caplab}{lifetimes}{Elinaikamerkinnän tarpeellisuus}
 \begin{code}{rust}
