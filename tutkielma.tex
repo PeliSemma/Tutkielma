@@ -181,7 +181,7 @@ fn main() {
     println!("Hei maailma");
 }
 \end{code}
-\begin{code}{bash}
+\begin{code}{text}
 $ cargo run
 Hei maailma
 \end{code}
@@ -251,7 +251,7 @@ fn add_world(mut string: String) {
     string.push_str("World!");
 }
 \end{code}
-\begin{code}{bash}
+\begin{code}{text}
 $ cargo run
 error[E0382]: use of moved value: 'string'
  --> src/main.rs:4:15
@@ -284,7 +284,7 @@ fn main() {
     }
 }
 \end{code}
-\begin{code}{bash}
+\begin{code}{text}
 $ cargo run
 error[E0502]: cannot borrow `list` as mutable because it
 is also borrowed as immutable
@@ -300,9 +300,9 @@ is also borrowed as immutable
 %$
 \end{caplab}
 
-Kuten jo aiemmin mainittiin, arvot vapautetaan aina silloin kun niiden omistajat poistuvat näkyvyysalueiltansa. Vapauttamisen jälkeen kaikki arvoon liittyvät lainaukset osoittaisivat vapautettuun muistiin eli ne olisivat niin sanottuja roikkuvia viittauksia (Dangling references). Jotta tätä ei tapahtuisi, lainauksien oikeellisuutta pitää seurata jollain tavalla. Rustissa kaikilla lainauksilla on tätä varten \textit{elinaika}, jonka täytyy aina olla lyhyempi kuin sen lainaaman arvon elinaika. Elinaika pystytään useimmissa tapauksissa päättelemään koodista automaattisesti. Joskus tämä ei ole kuitenkaan mahdollista, jolloin ohjelmoijan täytyy merkata se koodissa erillisellä elinaikamerkillä. Esimerkissä \ref{lifetimes}
+Kuten jo aiemmin mainittiin, arvot vapautetaan aina silloin kun niiden omistajat poistuvat näkyvyysalueiltansa. Vapauttamisen jälkeen kaikki arvoon liittyvät lainaukset osoittaisivat vapautettuun muistiin eli ne olisivat niin sanottuja roikkuvia viittauksia (Dangling references). Jotta tätä ei tapahtuisi, lainauksien oikeellisuutta pitää seurata jollain tavalla. Rustissa kaikilla lainauksilla on tätä varten \textit{elinaika}, jonka täytyy aina olla lyhyempi kuin sen lainaaman arvon elinaika. Elinaika pystytään useimmissa tapauksissa päättelemään koodista automaattisesti. Joskus tämä ei ole kuitenkaan mahdollista, jolloin ohjelmoijan täytyy merkata se koodissa erillisellä elinaikamerkillä. Esimerkissä \ref{lifetimes} on kaksi funktiota. Ensimmäisessä ei ole elinaikamerkintää, jonka takia Rust ei tiedä kummasta lainauksesta palautusarvona oleva lainaus tulee. Elinaikamerkatussa versiossa taas elinaikamerkintä yhdistää parametrin $b$ elinajan palautusarvon elinaikaan, jolloin Rust tietää kuinka pitkää palautusarvoa voi käyttää.
 
-\begin{caplab}{lifetimes}{}
+\begin{caplab}{lifetimes}{Elinaikamerkinnän tarpeellisuus}
 \begin{code}{rust}
 fn ei_toimi(a: &String, b: &String) -> &String {
     println!("{}", a);
@@ -314,16 +314,19 @@ fn toimii<'b>(a: &String, b: &'b String) -> &'b String {
     b
 }
 \end{code}
-\begin{code}{bash}
+\begin{code}{text}
 $ cargo run
 error[E0106]: missing lifetime specifier
  --> src/main.rs:1:40
   |
 1 | fn ei_toimi(a: &String, b: &String) -> &String {
-  |                                        ^ expected lifetime parameter
+  |                                        ^ expected
+                                             lifetime
+                                             parameter
   |
-  = help: this function's return type contains a borrowed value, 
-  but the signature does not say whether it is borrowed from `a` or `b`
+  = help: this function's return type contains a borrowed
+  value, but the signature does not say whether it is
+  borrowed from `a` or `b`
 \end{code}
 %$
 \end{caplab}
