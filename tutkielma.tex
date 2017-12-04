@@ -300,7 +300,39 @@ is also borrowed as immutable
 %$
 \end{caplab}
 
-Kuten jo aiemmin mainittiin, arvot vapautetaan aina silloin kun niiden omistajat poistuvat näkyvyysalueiltansa. Vapauttamisen jälkeen kaikki arvoon liittyvät lainaukset osoittaisivat vapautettuun muistiin eli ne olisivat niin sanottuja roikkuvia viittauksia (Dangling references). Jotta tätä ei tapahtuisi, lainauksien oikeellisuutta pitää seurata jollain tavalla. Rustissa kaikilla lainauksilla on tätä varten \textit{elinaika}, jonka täytyy aina olla lyhyempi kuin sen lainaaman arvon elinaika. Elinaika pystytään useimmissa tapauksissa päättelemään koodista automaattisesti. Joskus tämä ei ole kuitenkaan mahdollista, jolloin ohjelmoijan täytyy merkata se koodissa erillisellä elinaikamerkillä. Esimerkissä \ref{lifetimes} on kaksi funktiota. Ensimmäisessä ei ole elinaikamerkintää, jonka takia Rust ei tiedä kummasta lainauksesta palautusarvona oleva lainaus tulee. Elinaikamerkatussa versiossa taas elinaikamerkintä yhdistää parametrin $b$ elinajan palautusarvon elinaikaan, jolloin Rust tietää kuinka pitkää palautusarvoa voi käyttää.
+Kuten jo aiemmin mainittiin, arvot vapautetaan aina silloin kun niiden omistajat poistuvat näkyvyysalueiltansa. Vapauttamisen jälkeen kaikki arvoon liittyvät lainaukset osoittaisivat vapautettuun muistiin eli ne olisivat niin sanottuja roikkuvia viittauksia (Dangling references).
+
+\begin{caplab}{dangling}{Roikkuva viittaus}
+\begin{code}{rust}
+fn ei_toimi<'a>() -> &'a String {
+    let merkkijono = String::from("ei toimi");
+    &merkkijono
+}
+\end{code}
+\begin{code}{text}
+$ cargo run
+error[E0597]: `merkkijono` does not live long enough
+ --> src/main.rs:3:6
+  |
+3 |     &merkkijono
+  |      ^^^^^^^^^^ does not live long enough
+4 | }
+  | - borrowed value only lives until here
+  |
+note: borrowed value must be valid for the lifetime 'a as 
+defined on the function body at 1:1...
+ --> src/main.rs:1:1
+  |
+1 | / fn ei_toimi<'a>() -> &'a String {
+2 | |     let merkkijono = String::from("ei toimi");
+3 | |     &merkkijono
+4 | | }
+  | |_^
+\end{code}
+%$
+\end{caplab}
+
+Jotta tätä ei tapahtuisi, lainauksien oikeellisuutta pitää seurata jollain tavalla. Rustissa kaikilla lainauksilla on tätä varten \textit{elinaika}, jonka täytyy aina olla lyhyempi kuin sen lainaaman arvon elinaika. Elinaika pystytään useimmissa tapauksissa päättelemään koodista automaattisesti. Joskus tämä ei ole kuitenkaan mahdollista, jolloin ohjelmoijan täytyy merkata se koodissa erillisellä elinaikamerkillä. Esimerkissä \ref{lifetimes} on kaksi funktiota. Ensimmäisessä ei ole elinaikamerkintää, jonka takia Rust ei tiedä kummasta lainauksesta palautusarvona oleva lainaus tulee. Elinaikamerkatussa versiossa taas elinaikamerkintä yhdistää parametrin $b$ elinajan palautusarvon elinaikaan, jolloin Rust tietää kuinka pitkää palautusarvoa voi käyttää.
 
 \begin{caplab}{lifetimes}{Elinaikamerkinnän tarpeellisuus}
 \begin{code}{rust}
