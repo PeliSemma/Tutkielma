@@ -39,7 +39,7 @@
 
 \newenvironment{caplab}[2]
 {%
-  \renewcommand\listingscaption{Koodi}%
+  \renewcommand\listingscaption{Koodiliite}%
   \vspace{-5pt}%
   \begin{listing}[H]%
   \caption{#2}%
@@ -175,13 +175,13 @@ Suurimpiin Rustia käyttäviin projekteihin kuuluu Mozillan kehittämä Servo -w
 
 \section{Perusteet}
 
-Ohjelmointikieleen tutustuessa on tapana kirjoittaa klassinen ``Hei maailma`` -ohjelma joka tulostaa kyseisen lauseen. Koodi \ref{helloworld} on kyseisen ohjelman Rust-toteutus. Kyseinen toteutus ei poikkea juurikaan muiden proseduraalisten kielien toteutuksista. Suurin ero muiden kielien toteutuksiin on se että tulostuskomento on toteutettu makrolla tekstin muotoilun helpottamiseksi. Koodissa \ref{helloworld2} on esimerkki tästä.
+Ohjelmointikieleen tutustuessa on tapana kirjoittaa klassinen ``Hei maailma`` -ohjelma joka tulostaa kyseisen lauseen. Koodiliite \ref{helloworld} on kyseisen ohjelman Rust-toteutus. Kyseinen toteutus ei poikkea juurikaan muiden proseduraalisten kielien toteutuksista. Suurin ero muiden kielien toteutuksiin on se että tulostuskomento on toteutettu makrolla tekstin muotoilun helpottamiseksi. Koodiliitteessä \ref{helloworld2} on esimerkki tästä.
 
-Rustissa muuttujat määritellään käyttäen \textbf{let} avainsanaa ja muuttujan tyyppi erotellaan kaksoispisteellä. Koodissa \ref{helloworld2} muuttuja nimeltä \texttt{$s\_luku$} on 32-bittinen etumerkillinen kokonaisluku. Muuttujat oletusarvoisesti eivät ole muokattavissa. Muokattavat muuttujat määritellään käyttäen avainsanayhdistelmää \textbf{let mut}. 
+Rustissa muuttujat määritellään käyttäen \textbf{let} avainsanaa ja muuttujan tyyppi erotellaan kaksoispisteellä. Koodiliitteessä \ref{helloworld2} muuttuja nimeltä \texttt{$s\_luku$} on 32-bittinen etumerkillinen kokonaisluku. Muuttujat oletusarvoisesti eivät ole muokattavissa. Muokattavat muuttujat määritellään käyttäen avainsanayhdistelmää \textbf{let mut}. 
 
-Useimmissa tapauksissa muuttujan tyypin voi jättää merkitsemättä, koska Rust osaa päätellä sen käännösaikana. Kuitenkin funktioiden parametrien ja palautusarvon tyypit täytyy merkata, koska Rustissa ei ole ohjelmanlaajuista tyyppipäättelyä. Funktion palautusarvon tyyppi määritellään \texttt{->} nuolen jälkeen. Koodissa \ref{factorialiter} funktion parametri n ja palautusarvo ovat 64-bittisiä etumerkittömiä kokonaislukuja.
+Useimmissa tapauksissa muuttujan tyypin voi jättää merkitsemättä, koska Rust osaa päätellä sen käännösaikana. Kuitenkin funktioiden parametrien ja palautusarvon tyypit täytyy merkata, koska Rustissa ei ole ohjelmanlaajuista tyyppipäättelyä. Funktion palautusarvon tyyppi määritellään \texttt{->} nuolen jälkeen. Koodiliitteessä \ref{factorialiter} funktion parametri n ja palautusarvo ovat 64-bittisiä etumerkittömiä kokonaislukuja.
 
-Rustin \textbf{for}-silmukat ovat \textit{for--each}-tyyppisiä, joissa käydään iteraattorin kaikki alkiot läpi. Esimerkiksi koodissa \ref{factorialiter} käydään kaikki välin $[1, n+1)$ kokonaislukuarvot läpi.
+Rustin \textbf{for}-silmukat ovat \textit{for--each}-tyyppisiä, joissa käydään iteraattorin kaikki alkiot läpi. Esimerkiksi koodiliitteessä \ref{factorialiter} käydään kaikki välin $[1, n+1)$ kokonaislukuarvot läpi.
 
 Rustissa ei tarvitse käyttää \textbf{return} avainsanaa, jos arvo palautetaan funktion lopussa. Tällöin ei myöskään merkitä puolipistettä.
 
@@ -201,11 +201,13 @@ Koodissa \ref{ownerexample} havainnollistetaan, mitä tapahtuu kun muuttujaa yri
 
 Jos Rustissa olisi vain omistajuus, niin funktioiden pitäisi palauttaa parametrinsa, jotta niitä voitaisiin käyttää uudelleen. Parametrien uudelleenkäyttö on kuitenkin todella yleistä, jonka takia Rustissa on tätä varten käytössä lainaamisen käsite. Sen sijaan että omistajuus siirrettäisiin, arvoa voidaan lainata. Lainauksen aikana alkuperäinen omistaja ei voi käyttää arvoa, mutta se saa sen takaisin käyttöönsä heti, kun lainaus on loppunut. Rustissa on kaksi eri lainaustyyppiä: Muokkaamaton ja muokattava lainaus.
 
-\textit{Muokkaamattomassa lainauksessa} lainaaja ei pysty muokkaamaan lainattua arvoa, mutta koska muokkaaminen ei ole mahdollista lainauksia voi olla useita kappaleita samanaikaisesti (aliasiointi). \textit{Muokattavia lainauksia} voi sen sijaan olla vain yksi, mutta koska aliasointia ei ole niitä on mahdollista muokata. Samasta arvosta ei voi myöskään olla muokattavaa ja muokkaamatonta lainausta samanaikaisesti. Tämänlainen kahtiajako välttää muistiturvallisuusongelmia kuten iteraattorin mitätöityminen. Koodissa \ref{iterationexample} on esimerkki iteraattori invalidaatio tilanteesta. Virheviestistä näkee kuinka lainauksen säännöt estävät ongelman käännösaikana. Useimmissa kielissä, kuten Javassa ja C++:ssa, vastaavanlainen koodi kääntyisi ja siitä aiheutuvat ongelmat huomattaisiin vasta ajonaikana. Java heittäisi tässä tapauksessa poikkeuksen, kun taas C++:ssa se olisi muistiturvallisuusriski. Lainaaminen auttaa myös estämään kilpatilanteista johtuvia samanaikaisuusongelmia. Kilpatilanne voi tapahtua vain, jos useampi taho pääsee samanaikaisesti käsiksi arvoon ja ainakin yksi niistä muokkaa sitä. Rustin lainaamissäännöt nimenomaan eivät salli tätä.
+\textit{Muokkaamattomassa lainauksessa} lainaaja ei pysty muokkaamaan lainattua arvoa, mutta koska muokkaaminen ei ole mahdollista lainauksia voi olla useita kappaleita samanaikaisesti (aliasiointi). \textit{Muokattavia lainauksia} voi sen sijaan olla vain yksi, mutta koska aliasointia ei ole niitä on mahdollista muokata. Samasta arvosta ei voi myöskään olla muokattavaa ja muokkaamatonta lainausta samanaikaisesti. 
 
-Kuten jo aiemmin mainittiin, arvot vapautetaan aina silloin kun niiden omistajat poistuvat näkyvyysalueiltansa. Vapauttamisen jälkeen kaikki arvoon liittyvät lainaukset osoittaisivat vapautettuun muistiin eli ne olisivat niin sanottuja roikkuvia viittauksia (Dangling references). Jotta tätä ei tapahtuisi, lainauksien oikeellisuutta pitää seurata jollain tavalla. Koodissa \ref{dangling} on esimerkki juuri tällaisesta virheellisestä lainauksesta.
+Tämänlainen kahtiajako välttää muistiturvallisuusongelmia kuten iteraattorin mitätöimisen (iterator invalidation). Koodiliitteessä \ref{iterationexample} on esimerkki iteraattorin mitätöitymistilanteesta. Virheviestistä näkee kuinka lainauksen säännöt estävät ongelman käännösaikana. Useimmissa kielissä, kuten Javassa ja C++:ssa, vastaavanlainen koodi kääntyisi ja siitä aiheutuvat ongelmat huomattaisiin vasta ajonaikana. Java heittäisi tässä tapauksessa poikkeuksen, kun taas C++:ssa se olisi muistiturvallisuusriski. Lainaaminen auttaa myös estämään kilpatilanteista johtuvia samanaikaisuusongelmia. Kilpatilanne voi tapahtua vain, jos useampi taho pääsee samanaikaisesti käsiksi arvoon ja ainakin yksi niistä muokkaa sitä. Rustin lainaamissäännöt nimenomaan eivät salli tätä.
 
-Rustissa kaikilla lainauksilla on varten \textit{elinaika}, jonka täytyy aina olla lyhyempi kuin sen lainaaman arvon elinaika. Elinaika pystytään useimmissa tapauksissa päättelemään koodista automaattisesti. Joskus tämä ei ole kuitenkaan mahdollista, jolloin ohjelmoijan täytyy merkata se koodissa erillisellä elinaikamerkillä. Esimerkissä \ref{lifetimes} on kaksi funktiota. Ensimmäisessä ei ole elinaikamerkintää, jonka takia Rust ei tiedä kummasta lainauksesta palautusarvona oleva lainaus tulee. Elinaikamerkatussa versiossa taas elinaikamerkintä yhdistää parametrin $b$ elinajan palautusarvon elinaikaan, jolloin Rust tietää kuinka pitkää palautusarvoa voi käyttää.
+Kuten jo aiemmin mainittiin, arvot vapautetaan aina silloin kun niiden omistajat poistuvat näkyvyysalueiltansa. Vapauttamisen jälkeen kaikki arvoon liittyvät lainaukset osoittaisivat vapautettuun muistiin eli ne olisivat niin sanottuja roikkuvia viittauksia (Dangling references). Jotta tätä ei tapahtuisi, lainauksien oikeellisuutta pitää seurata jollain tavalla. Koodiliitteessä \ref{dangling} on esimerkki juuri tällaisesta virheellisestä lainauksesta.
+
+Rustissa kaikilla lainauksilla on varten \textit{elinaika}, jonka täytyy aina olla lyhyempi kuin sen lainaaman arvon elinaika. Elinaika pystytään useimmissa tapauksissa päättelemään koodista automaattisesti. Joskus tämä ei ole kuitenkaan mahdollista, jolloin ohjelmoijan täytyy merkata se koodissa erillisellä elinaikamerkillä. koodiliite-esimerkissä \ref{lifetimes} on kaksi funktiota. Ensimmäisessä ei ole elinaikamerkintää, jonka takia Rust ei tiedä kummasta lainauksesta palautusarvona oleva lainaus tulee. Elinaikamerkatussa versiossa taas elinaikamerkintä yhdistää parametrin $b$ elinajan palautusarvon elinaikaan, jolloin Rust tietää kuinka pitkään palautusarvoa voi käyttää.
 
 \section{Vertailu C-kieliin}
 
