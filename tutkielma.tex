@@ -163,35 +163,35 @@ Viides kappale esittelee Rustille saatavilla olevia peliohjelmointiin soveltuvia
 
 \section{Johdanto}
 
-Rust on käännettävä ohjelmointikieli, jonka kehitystä tukee Mozilla-säätiö \cite{servo}. Mozilla käyttää kieltä uuden rinnakkaisuutta hyödyntävän Servo -internet-selainmoottorin ohjelmointiin ja lisäksi sitä käyttävät useat organisaatiot kuten Dropbox, Canonical ja Npm \cite{RustFriends}.
+Rust on käännettävä ohjelmointikieli, jonka kehitystä tukee Mozilla-säätiö \cite{servo}. Mozilla käyttää kieltä uuden rinnakkaisuutta hyödyntävän Servo -selainmoottorin ohjelmointiin ja lisäksi sitä käyttävät useat organisaatiot kuten Dropbox, Canonical ja Npm \cite{RustFriends}.
 
-Järjestelmäohjelmointikielenä Rust mahdollistaa korkeaa suorituskykyä ja hallittua muistinkäyttöä vaativien sovellusten kehittämisen. Tämä on hyödyllistä esimerkiksi käyttöjärjestelmissä ja sulautetuissa järjestelmissä. C ja C++ -kielistä poiketen Rust kuitenkin estää yleisiä muistinhallintaa ja kilpatilanteita koskevia ongelmia. Rust ratkaisee nämä ongelmat käyttämällä muistinhallinnassa omistajuuden (“ownership”) ja lainaamisen (“borrowing”) käsitteitä, jotka estävät mahdolliset virhetilanteet jo ohjelman käännösvaiheessa. Näin Rust ei vaadi virtuaalikoneen tai tulkin käyttöä ohjelman suorituksen aikana.
+Järjestelmäohjelmointikielenä Rust mahdollistaa korkeaa suorituskykyä ja hallittua muistinkäyttöä vaativien sovellusten kehittämisen. Tästä on hyötyä esimerkiksi käyttöjärjestelmissä ja sulautetuissa järjestelmissä. C ja C++ -kielistä poiketen Rust kuitenkin estää yleisiä muistinhallintaa ja kilpatilanteita koskevia ongelmia. Rust ratkaisee nämä ongelmat käyttämällä muistinhallinnassa omistajuuden (“ownership”) ja lainaamisen (“borrowing”) käsitteitä, jotka estävät mahdolliset virhetilanteet jo ohjelman käännösvaiheessa. Näin Rust ei vaadi virtuaalikoneen tai tulkin käyttöä ohjelman suorituksen aikana.
 
 \section{Historia}
 
 Rust-kielen kehitys alkoi vuonna 2006 Graydon Hoaren sivuprojektina, jollaisena se jatkui yli kolmen vuoden ajan \cite{RustFaq}. Mozilla-säätiö osallistui kehitykseen ensimmäisen kerran vuonna 2009 ja on tukenut ohjelmointikielen kehitystä siitä lähtien. Nykyisin kieltä kehittävä ryhmä -- \textit{The Rust Team} -- jakautuu osaryhmiin, jotka vastaavat kielen eri osa-alueista. Osa-alueisiin kuuluvat esimerkiksi kääntäjän kehittäminen, kielen ominaisuuksien suunnittelu ja dokumentaatio.
 
-Suurimpiin Rustia käyttäviin projekteihin kuuluu Mozillan kehittämä Servo -web-selainmoottori. Sen tavoitteisiin kuuluu sivun piirtämisen, HTML-datan parsimisen ja muiden web-selaimen piiriin kuuluvien tehtävien rinnakkaistaminen \cite{QuantumSuperFastCSSEngine}. Servo-projektiin kuuluva CSS-moottori Stylo on otettu käyttöön Mozilla Firefox -selaimen uusissa versioissa \cite{StyloIncludedInFirefox}.
+Suurimpiin Rustia käyttäviin projekteihin kuuluu Mozillan kehittämä Servo -selainmoottori. Sen tavoitteisiin kuuluu sivun piirtämisen, HTML-datan parsimisen ja muiden verkkoselaimen piiriin kuuluvien tehtävien rinnakkaistaminen \cite{QuantumSuperFastCSSEngine}. Servo-projektiin kuuluva CSS-moottori Stylo on otettu käyttöön Mozilla Firefox -verkkoselaimen uusissa versioissa \cite{StyloIncludedInFirefox}.
 
 \section{Perusteet}
 
-Ohjelmointikieleen tutustuessa on tapana kirjoittaa klassinen ``Hei maailma`` -ohjelma joka tulostaa kyseisen lauseen. Koodiliite \ref{helloworld} on kyseisen ohjelman Rust-toteutus. Kyseinen toteutus ei poikkea juurikaan muiden proseduraalisten kielien toteutuksista. Suurin ero muiden kielien toteutuksiin on se että tulostuskomento on toteutettu makrolla tekstin muotoilun helpottamiseksi. Koodiliitteessä \ref{helloworld2} on esimerkki tästä.
+Ohjelmointikieleen tutustuessa on tapana kirjoittaa klassinen ``Hei maailma`` -ohjelma joka tulostaa kyseisen lauseen. Koodiliitteessä \ref{helloworld} on kyseisen ohjelman Rust-toteutus, joka ei poikkea juurikaan muista proseduraalisilla kielillä tehdyistä toteutuksista. Suurin ero on tulostuskomennossa, joka on toteutettu makrolla tekstin muotoilun helpottamiseksi. Koodiliitteessä \ref{helloworld2} on esimerkki tekstin muotoilusta.
 
-Rustissa muuttujat määritellään käyttäen \textbf{let} avainsanaa ja muuttujan tyyppi erotellaan kaksoispisteellä. Koodiliitteessä \ref{helloworld2} muuttuja nimeltä \texttt{$s\_luku$} on 32-bittinen etumerkillinen kokonaisluku. Muuttujat oletusarvoisesti eivät ole muokattavissa. Muokattavat muuttujat määritellään käyttäen avainsanayhdistelmää \textbf{let mut}. 
+Rustissa muuttujat määritellään käyttäen \textbf{let} avainsanaa ja ne eivät ole oletusarvoisesti muokattavissa. Muokattavat muuttujat määritellään käyttäen avainsanayhdistelmää \textbf{let mut}. Muuttujan tyyppi määritellään sen nimen jälkeen kaksoispisteellä erotettuna. Esimerkiksi koodiliitteessä \ref{helloworld2} muuttuja nimeltä \texttt{$s\_luku$} on 32-bittinen etumerkillinen kokonaisluku. 
 
-Useimmissa tapauksissa muuttujan tyypin voi jättää merkitsemättä, koska Rust osaa päätellä sen käännösaikana. Kuitenkin funktioiden parametrien ja palautusarvon tyypit täytyy merkata, koska Rustissa ei ole ohjelmanlaajuista tyyppipäättelyä. Funktion palautusarvon tyyppi määritellään \texttt{->} nuolen jälkeen. Koodiliitteessä \ref{factorialiter} funktion parametri n ja palautusarvo ovat 64-bittisiä etumerkittömiä kokonaislukuja.
+Useimmissa tapauksissa muuttujan tyypin voi jättää merkitsemättä, koska Rust osaa päätellä sen käännösaikana. Kuitenkin funktioiden parametrien ja palautusarvon tyypit täytyy aina merkata. Funktion palautusarvon tyyppi määritellään \texttt{->} nuolen jälkeen. Koodiliitteessä \ref{factorialiter} olevan funktion parametri ja palautusarvo ovat molemmat 64-bittisiä etumerkittömiä kokonaislukuja.
 
-Rustin \textbf{for}-silmukat ovat \textit{for--each}-tyyppisiä, joissa käydään iteraattorin kaikki alkiot läpi. Esimerkiksi koodiliitteessä \ref{factorialiter} käydään kaikki välin $[1, n+1)$ kokonaislukuarvot läpi.
+Rustin \textbf{for}-silmukat ovat \textit{for--each}-tyyppisiä eli niissä käydään kaikki sille annetun iteraattorin alkiot läpi. Esimerkiksi koodiliitteessä \ref{factorialiter} käydään kaikki välin $[1, n+1)$ kokonaislukuarvot läpi.
 
-Rustissa ei tarvitse käyttää \textbf{return} avainsanaa, jos arvo palautetaan funktion lopussa. Tällöin ei myöskään merkitä puolipistettä.
+Rustissa ei tarvitse käyttää \textbf{return} avainsanaa, jos arvo palautetaan funktion lopussa ja tällöin kyseisen rivin puolipiste jätetään pois.
 
 \subsection{Omistajuus}
 
-Muistinhallinta on tärkeä osa ohjelmien toimintaa. Tätä varten monissa kielissä käytetään automaattista roskienkeruuta, joka vähentää ohjelmoijan vastuuta, mutta samalla myös vähentää ohjelmoijan mahdollisuuksia vaikuttaa muistinhallintaan. Tietyissä suorituskykykriittisissä ongelmissa automaattinen roskienkeruu saattaa myös tehdä epäoptimaalisia ratkaisuja.
+Muistinhallinta on tärkeä osa ohjelmien toimintaa. Tätä varten monissa kielissä käytetään automaattista roskienkeruuta, joka vähentää ohjelmoijan vastuuta, mutta samalla myös vähentää ohjelmoijan mahdollisuuksia vaikuttaa muistinhallintaan.
 
-Muistinhallinnan optimointiongelmia esiintyy pelimoottoreissa esimerkiksi fysiikanmallinnuksessa. Tämän takia pelimoottorit toteutetaan usein kielillä, joissa muistinhallinta on manuaalista. Tämän kaltaisissa kielissä jää ohjelmoijan vastuuksi varata ja vapauttaa muisti oikeaoppisesti. Tästä johtuen kyseiset kielet ovat alttiita muistihallintavirheille.
+Muistinhallinnan optimointiongelmia esiintyy pelimoottoreissa esimerkiksi fysiikanmallinnuksessa. Tämän takia pelimoottorit toteutetaan usein kielillä, joissa muistinhallinta on manuaalista. Tämän kaltaisissa kielissä jää ohjelmoijan vastuuksi varata ja vapauttaa muisti oikeaoppisesti. Tästä johtuen kyseiset kielet ovat alttiita muistihallintavirheille. \cite{CVE}
 
-Rust-ohjelmointikielessä ei käytetä automaattista roskienkeruuta, mutta siinä ei myöskään jätetä muistinhallintaa täysin ohjelmoijan vastuulle. Tämä on mahdollista, koska Rust takaa sen että jokaisella varatulla muistialueella on yksikäsitteinen omistaja, joka on vastuussa sen vapauttamisesta. Koska Rustissa omistajuus on käännösaikainen käsite, vastaa se manuaalista muistinhallintaa.
+Rust-ohjelmointikielessä ei käytetä automaattista roskienkeruuta, mutta siinä ei myöskään jätetä muistinhallintaa täysin ohjelmoijan vastuulle. Tämä on mahdollista, koska Rust takaa sen että jokaisella varatulla muistialueella on yksikäsitteinen omistaja, joka on vastuussa sen vapauttamisesta. Koska Rustissa omistajuus on käännösaikainen käsite, on se yhtä tehokasta kuin manuaalinen muistinhallinta. \cite{TheGoodBook}
 
 Ohjelmointikielen tasolla muuttuja omistaa arvonsa. Kun muuttuja poistuu näkyvyysalueelta, niin sen omistama arvo vapautetaan. Muuttuja voi siirtää omistamansa arvon jollekin muuttujalle tai funktiolle parametriksi, jolloin myös sen omistajuus siirtyy. Tämän jälkeen alkuperäinen muuttuja ei voi enää käyttää arvoa sillä se ei enää omista sitä.
 
