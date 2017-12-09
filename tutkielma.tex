@@ -108,13 +108,17 @@
 \author{Victor Bankowski, Antti Karjalainen ja Janne Pulkkinen}
 \date{\today}
 \level{Seminaariraportti}
-\abstract{Seminaariraportti tarkastelee Rust-ohjelmointikieltä, sen ominaisuuksia ja eroavaisuuksia muihin laajassa käytössä oleviin ohjelmointikieliin, ja sen soveltuvuutta peliohjelmointiin.
+\abstract{Rust on moderni Mozillan kehittämä järjestelmäohjelmointikieli. Sen tavoitteena on olla sekä turvallinen että nopea. Tämä on mahdollista käännösaikasten omistajuuden ja lainaamisen käsitteiden avulla.
 
-Raportin toinen ja kolmas kappale käsittelevät Rust-ohjelmoinnin historiaa, perusteita ja ohjelmoinnissa tärkeitä piirteitä, kuten omistajuutta, lainaamista ja muuttujien elinikää. Ohjelmointikielen ominaisuuksia esitellään koodiesimerkeillä.
+Rustissa jokaisella on arvolla on yksikäsitteinen omistaja joka on vastuussa sen poistamisesta. Tämä omistajuuden käsite mahdollistaa automaattisen muistinhallinnan ilman roskienkeruuta.
 
-Neljäs kappale keskittyy Rustin vertailuun C ja C++ -ohjelmointikielien kanssa käyttäen vertailukohteina käyttöjärjestelmiä ja kehitystyökaluja.
+Lainaaminen taas mahdollistaa arvon käytön ilman omistajuuden siirtämistä. Yhdestä arvosta voi olla joko yksi muokattava lainaus tai usea muokkaamaton lainaus. Tämä estää samanaikaisuus- ja muistiongelmia käännösaikaisesti.
 
-Viides kappale esittelee Rustille saatavilla olevia peliohjelmointiin soveltuvia kirjastoja ja työkaluja.}
+Verrattuna perinteisiin järjestelmäohjelmointikieliin, kuten C ja C++:aan, Rustin kirjastovalikoima on vielä lapsenkengissä kielen suhteellisen nuoruuden takia. Rust kuitenki tukee C-kirjastojen käyttöä suoraan FFI-rajapinnan kautta. 
+
+Vaikka Rustille ei ole vielä Unityn tai Unreal Enginen kaltaisia kokonaisvaltaisia pelinkehitystyökaluja, sille on kuitenkin saatavilla useita eri pelinkehitykseen liittyviä kirjastoja. Pelimoottorikirjastoja ovat esimerkiksi Amethyst ja Piston. Grafiikkakirjastoista löytyy sidonnat tunnetuimmille grafiikkarajapinnoille. Lisäksi saatavilla on korkeamman tason grafiikkakirjastoja kuten Gfx-rs ja Glium.
+
+Rustin ominaispiirteet vaikuttavat ohjelmistojen, esimerkiksi pelimoottorien, rakenteellisiin valintoihin. ECS (Entity Component System) on yksi Rustille sopiva pelimoottorirakenne ja siitä on useita toteutuksia on saatavilla. Näistä toteutuksista Specs on suosituin erityisesti sen samanaikaisuus ominaisuuksien takia.}
 
 % The following can be used to specify keywords and classification of the paper:
 
